@@ -1,0 +1,28 @@
+\documentclass{article}
+\usepackage{pdflscape}
+\usepackage{graphicx}
+\usepackage[width=15in,height=18in,margin=0.01in]{geometry}
+\graphicspath{ {tmp/[[.StructDashboard.RequestId]]/} }
+
+\begin{document}
+\begin{landscape}
+\title{[[.StructDashboard.Title]]}
+\date{[[.TimestampFrom]] to [[.TimestampTo]] ([[.From]] to [[.To]])}
+\maketitle
+
+[[if .Vars]]\begin{center}
+Variables: [[.Vars]]
+\end{center}[[end]]
+
+\begin{center}
+[[range .StructDashboard.Rows]]
+\vspace{0.5cm}
+\par \textup{[[rmdlr .Title]]}\par
+\vspace{0.5cm}
+[[$li := decrm (len .Panels)]]
+[[range $i, $p := .Panels]][[if eq $i 0]]\begin{minipage}{1\textwidth}[[end]]\includegraphics[width=[[.GetRelativeWidth 1920]]\textwidth]{[[.Id]].png}
+[[if eq $i $li]]\end{minipage} \vspace{0.2cm}[[end]][[end]][[end]]
+\end{center}
+
+\end{landscape}
+\end{document}

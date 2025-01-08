@@ -1,0 +1,26 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage[a4paper, total={6in, 8in}]{geometry}
+
+\graphicspath{ {tmp/[[.StructDashboard.RequestId]]/} }
+
+\begin{document}
+\title{[[.StructDashboard.Title]]}
+\date{[[.TimestampFrom]] to [[.TimestampTo]] ([[.From]] to [[.To]])}
+\maketitle
+
+[[if .Vars]]\begin{center}
+Variables: [[.Vars]]
+\end{center}[[end]]
+
+\begin{center}
+[[range .StructDashboard.Rows]]
+\vspace{0.5cm}
+\par \textup{[[rmdlr .Title]]}\par
+\vspace{0.5cm}
+[[range .Panels]]\includegraphics[width=[[.GetRelativeWidth 1920]]\textwidth]{[[.Id]].png}
+\par
+\vspace{0.2cm}[[end]][[end]]
+\end{center}
+
+\end{document}
