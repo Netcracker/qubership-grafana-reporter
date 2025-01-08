@@ -1,0 +1,25 @@
+\documentclass[
+  border=1pt,
+  convert
+]{standalone}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\graphicspath{ {tmp/[[.StructDashboard.RequestId]]/} }
+
+\begin{document}
+\title{[[.StructDashboard.Title]] [[if .Vars]] \\ \large [[.Vars]] [[end]]}
+\date{[[.TimestampFrom]] to [[.TimestampTo]] ([[.From]] to [[.To]])}
+\maketitle
+
+\begin{center}
+[[range .StructDashboard.Rows]]
+\vspace{0.5cm}
+\par \textup{[[rmdlr .Title]]}\par
+\vspace{0.5cm}
+[[$li := decrm (len .Panels)]]
+[[range $i, $p := .Panels]][[if eq $i 0]]\begin{minipage}{1\textwidth}[[end]]\includegraphics[width=[[.GetRelativeWidth 1920]]\textwidth]{[[.Id]].png}
+[[if eq $i $li]]\end{minipage} \vspace{0.2cm}[[end]][[end]][[end]]
+\end{center}
+
+\end{center}
+\end{document}

@@ -1,0 +1,245 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This document describes REST API for Grafana Reporter.",
+        "title": "Grafana Reporter REST API",
+        "contact": {},
+        "license": {
+            "name": "Qubership",
+            "url": "https://www.qubership.org/"
+        },
+        "version": "1.0"
+    },
+    "host": "GRAFANA_REPORTER:8881",
+    "paths": {
+        "/api/v1/defaults": {
+            "get": {
+                "description": "Get values of default parameters such as default template and time range",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "General"
+                ],
+                "summary": "Get values of default parameters",
+                "operationId": "getDefaults",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/report/{dashboard_uid}": {
+            "get": {
+                "description": "Generate Grafana dashboard report in PDF file. You can set time range, tex template and other parameters `var-` from Grafana",
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "Generate"
+                ],
+                "summary": "Generate Grafana dashboard report",
+                "operationId": "generateReport",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authentication header",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Dashboard UID",
+                        "name": "dashboard_uid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "PDF tex template name",
+                        "name": "template",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The start of time range",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The end of time range",
+                        "name": "to",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Generate Grafana dashboard report in PDF file. You can set time range, tex template and other parameters `var-` from Grafana",
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "Generate"
+                ],
+                "summary": "Generate Grafana dashboard report",
+                "operationId": "generateReport",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authentication header",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Dashboard UID",
+                        "name": "dashboard_uid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "PDF tex template name",
+                        "name": "template",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The start of time range",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The end of time range",
+                        "name": "to",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/report/{template}": {
+            "get": {
+                "description": "Get tex template by name",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "General"
+                ],
+                "summary": "Get tex template by name",
+                "operationId": "getTexTemplate",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "PDF tex template name",
+                        "name": "template",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/templates": {
+            "get": {
+                "description": "Get names of all available tex templates",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "General"
+                ],
+                "summary": "Get names of available tex templates",
+                "operationId": "getTexTemplates",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "description": "Create reports of Grafana dashboard with the set of parameters",
+            "name": "Generate"
+        },
+        {
+            "description": "Get application information",
+            "name": "General"
+        }
+    ]
+}
