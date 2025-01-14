@@ -16,8 +16,14 @@
 package dashboard
 
 import (
+	"fmt"
 	"math"
 	"strings"
+)
+
+const (
+	rowsLimit   = 500
+	panelsLimit = 1000
 )
 
 type DashboardEntity struct {
@@ -69,8 +75,9 @@ type PanelStructured struct {
 	Type string
 }
 
-func (de *DashboardEntity) GetStructuredDashboard(renderCollapsed bool) *StructuredDashboard {
+func (de *DashboardEntity) GetStructuredDashboard(renderCollapsed bool) (*StructuredDashboard, error) {
 	var rows []*Row
+	panelsCount := 0
 	for _, rowOrPanel := range de.Panels {
 		if strings.EqualFold(rowOrPanel.Type, "row") {
 			if rowOrPanel.Collapsed == renderCollapsed {
@@ -79,6 +86,7 @@ func (de *DashboardEntity) GetStructuredDashboard(renderCollapsed bool) *Structu
 					GridPos: rowOrPanel.GridPos,
 					Panels:  rowOrPanel.Panels,
 				})
+				panelsCount += len(rowOrPanel.Panels)
 			}
 		} else if !strings.EqualFold(rowOrPanel.Type, "row") && len(rows) == 0 {
 			rows = append(rows, &Row{
@@ -86,13 +94,19 @@ func (de *DashboardEntity) GetStructuredDashboard(renderCollapsed bool) *Structu
 				GridPos: rowOrPanel.GridPos,
 				Panels:  []Panel{rowOrPanel},
 			})
+			panelsCount++
 		} else {
 			rows = append(rows, &Row{
 				Title:   "",
 				GridPos: rowOrPanel.GridPos,
 				Panels:  []Panel{rowOrPanel},
 			})
+			panelsCount++
 		}
+	}
+
+	if len(rows) > rowsLimit || panelsCount > panelsLimit {
+		return nil, fmt.Errorf("grafana dashboard contains too many rows/panels: rows=%d (limit=%d); panels=%d (limit=%d)", len(rows), rowsLimit, panelsCount, panelsLimit)
 	}
 
 	dsh := &StructuredDashboard{
@@ -101,7 +115,7 @@ func (de *DashboardEntity) GetStructuredDashboard(renderCollapsed bool) *Structu
 		Slug:  de.Slug,
 		Rows:  rows,
 	}
-	return dsh
+	return dsh, nil
 }
 
 func (p *Panel) IsTheFirst() bool {
