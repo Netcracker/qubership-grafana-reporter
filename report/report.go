@@ -288,11 +288,13 @@ func (g *GrafanaInstance) HandleGenerateReport(writer http.ResponseWriter, reque
 
 	urlPath := strings.Split(request.URL.Path, "/")
 	if len(urlPath) != 5 || urlPath[4] == "" {
-		_, err := writer.Write([]byte("error"))
+		urlErr := fmt.Sprintf("Handle of invalid URL path. Path: %s", request.URL.Path)
+		slog.Error(urlErr)
+		writer.WriteHeader(http.StatusBadRequest)
+		_, err := writer.Write([]byte(urlErr))
 		if err != nil {
 			slog.Error("Could not write response", "error", err)
 		}
-		slog.Error(fmt.Sprintf("Handle of invalid URL path. Path: %s", request.URL.Path))
 		return
 	}
 	dashboardID := urlPath[4]
@@ -406,7 +408,10 @@ func (g *GrafanaInstance) getDashboard(dashboardUID string, authHeader string, r
 	if err = json.Unmarshal(body, &dashboardEntity); err != nil {
 		return nil, err
 	}
-	structured := dashboardEntity.GetStructuredDashboard(renderCollapsed)
+	structured, err := dashboardEntity.GetStructuredDashboard(renderCollapsed)
+	if err != nil {
+		return nil, err
+	}
 	return structured, nil
 }
 
