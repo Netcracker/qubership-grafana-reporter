@@ -56,7 +56,7 @@ jobs:
           no-cache: true
           context: ${{ matrix.component.context }}
           file: ${{ matrix.component.file }}
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           # See https://docs.github.com/en/code-security/dependabot/working-with-dependabot/automating-dependabot-with-github-actions#fetching-metadata-about-a-pull-request
           push: ${{ github.event_name != 'pull_request' && github.event.pull_request.user.login != 'dependabot[bot]' }}
           provenance: false
