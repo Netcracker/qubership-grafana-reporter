@@ -22,8 +22,9 @@ import (
 )
 
 const (
-	rowsLimit   = 500
-	panelsLimit = 1000
+	grafanaResolutionWidth = 24
+	rowsLimit              = 500
+	panelsLimit            = 1000
 )
 
 type DashboardEntity struct {
@@ -88,7 +89,7 @@ func (de *DashboardEntity) GetStructuredDashboard(renderCollapsed bool) (*Struct
 				})
 				panelsCount += len(rowOrPanel.Panels)
 			}
-		} else if !strings.EqualFold(rowOrPanel.Type, "row") && len(rows) == 0 {
+		} else if !strings.EqualFold(rowOrPanel.Type, "row") && (len(rows) == 0 || !rowOrPanel.IsAddedToPreviousRow(*rows[len(rows)-1])) {
 			rows = append(rows, &Row{
 				Title:   "",
 				GridPos: rowOrPanel.GridPos,
@@ -96,11 +97,7 @@ func (de *DashboardEntity) GetStructuredDashboard(renderCollapsed bool) (*Struct
 			})
 			panelsCount++
 		} else {
-			rows = append(rows, &Row{
-				Title:   "",
-				GridPos: rowOrPanel.GridPos,
-				Panels:  []Panel{rowOrPanel},
-			})
+			rows[len(rows)-1].Panels = append(rows[len(rows)-1].Panels, rowOrPanel)
 			panelsCount++
 		}
 	}
@@ -123,19 +120,27 @@ func (p *Panel) IsTheFirst() bool {
 }
 
 func (p *Panel) IsTheLast() bool {
-	return p.X+p.W == 24
+	return p.X+p.W == grafanaResolutionWidth
 }
 
 func (p *Panel) GetPxWidth(screenResolutionWidth int) int {
-	return p.W * (screenResolutionWidth / 24)
+	return p.W * (screenResolutionWidth / grafanaResolutionWidth)
 }
 
 func (p *Panel) GetPxHeight(screenResolutionWidth int) int {
-	return p.H * (screenResolutionWidth / 24)
+	return p.H * (screenResolutionWidth / grafanaResolutionWidth)
 }
 
 func (p *Panel) GetRelativeWidth(screenResolutionWidth int) float64 {
 	return roundFloat(float64(p.GetPxWidth(screenResolutionWidth))/float64(screenResolutionWidth), 3) - 0.005
+}
+
+func (p *Panel) IsAddedToPreviousRow(row Row) bool {
+	rowWidth := p.W
+	for _, panel := range row.Panels {
+		rowWidth += panel.W
+	}
+	return rowWidth <= grafanaResolutionWidth
 }
 
 func roundFloat(val float64, precision uint) float64 {
