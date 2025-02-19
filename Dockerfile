@@ -35,7 +35,7 @@ COPY timerange/ timerange/
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o grafana-reporter .
 
-FROM ubuntu:20.04
+FROM ubuntu:24.04
 
 RUN apt-get -y update \
     && apt-get -f install -y wget perl \
