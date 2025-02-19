@@ -1,0 +1,14 @@
+---
+name: Lint Code Base
+
+on:
+  workflow_call:
+
+  pull_request:
+    branches: [main]
+    types:
+      [opened, reopened]
+
+jobs:
+  run-lint:
+    uses: Netcracker/qubership-workflow-hub/.github/workflows/super-linter.yml@main
