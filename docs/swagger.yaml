@@ -24,11 +24,12 @@ info:
 paths:
   /api/v1/defaults:
     get:
-      description: Get values of default parameters such as default template and time
+      description:
+        Get values of default parameters such as default template and time
         range
       operationId: getDefaults
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -36,37 +37,38 @@ paths:
             type: string
       summary: Get values of default parameters
       tags:
-      - General
+        - General
   /api/v1/report/{dashboard_uid}:
     get:
-      description: Generate Grafana dashboard report in PDF file. You can set time
+      description:
+        Generate Grafana dashboard report in PDF file. You can set time
         range, tex template and other parameters `var-` from Grafana
       operationId: generateReport
       parameters:
-      - description: Authentication header
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Dashboard UID
-        in: path
-        name: dashboard_uid
-        required: true
-        type: string
-      - description: PDF tex template name
-        in: query
-        name: template
-        type: string
-      - description: The start of time range
-        in: query
-        name: from
-        type: string
-      - description: The end of time range
-        in: query
-        name: to
-        type: string
+        - description: Authentication header
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Dashboard UID
+          in: path
+          name: dashboard_uid
+          required: true
+          type: string
+        - description: PDF tex template name
+          in: query
+          name: template
+          type: string
+        - description: The start of time range
+          in: query
+          name: from
+          type: string
+        - description: The end of time range
+          in: query
+          name: to
+          type: string
       produces:
-      - application/octet-stream
+        - application/octet-stream
       responses:
         "200":
           description: OK
@@ -82,36 +84,37 @@ paths:
             type: string
       summary: Generate Grafana dashboard report
       tags:
-      - Generate
+        - Generate
     post:
-      description: Generate Grafana dashboard report in PDF file. You can set time
+      description:
+        Generate Grafana dashboard report in PDF file. You can set time
         range, tex template and other parameters `var-` from Grafana
       operationId: generateReport
       parameters:
-      - description: Authentication header
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Dashboard UID
-        in: path
-        name: dashboard_uid
-        required: true
-        type: string
-      - description: PDF tex template name
-        in: query
-        name: template
-        type: string
-      - description: The start of time range
-        in: query
-        name: from
-        type: string
-      - description: The end of time range
-        in: query
-        name: to
-        type: string
+        - description: Authentication header
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: Dashboard UID
+          in: path
+          name: dashboard_uid
+          required: true
+          type: string
+        - description: PDF tex template name
+          in: query
+          name: template
+          type: string
+        - description: The start of time range
+          in: query
+          name: from
+          type: string
+        - description: The end of time range
+          in: query
+          name: to
+          type: string
       produces:
-      - application/octet-stream
+        - application/octet-stream
       responses:
         "200":
           description: OK
@@ -127,19 +130,19 @@ paths:
             type: string
       summary: Generate Grafana dashboard report
       tags:
-      - Generate
+        - Generate
   /api/v1/report/{template}:
     get:
       description: Get tex template by name
       operationId: getTexTemplate
       parameters:
-      - description: PDF tex template name
-        in: path
-        name: template
-        required: true
-        type: string
+        - description: PDF tex template name
+          in: path
+          name: template
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -157,13 +160,13 @@ paths:
             type: string
       summary: Get tex template by name
       tags:
-      - General
+        - General
   /api/v1/templates:
     get:
       description: Get names of all available tex templates
       operationId: getTexTemplates
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -171,10 +174,10 @@ paths:
             type: string
       summary: Get names of available tex templates
       tags:
-      - General
+        - General
 swagger: "2.0"
 tags:
-- description: Create reports of Grafana dashboard with the set of parameters
-  name: Generate
-- description: Get application information
-  name: General
+  - description: Create reports of Grafana dashboard with the set of parameters
+    name: Generate
+  - description: Get application information
+    name: General
