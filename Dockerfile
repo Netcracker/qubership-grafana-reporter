@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.21.6-alpine3.18 AS builder
+FROM golang:1.24.0-alpine3.21 AS builder
 
 WORKDIR /workspace
 
@@ -35,16 +35,8 @@ COPY timerange/ timerange/
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o grafana-reporter .
 
-FROM ubuntu:20.04
-
-RUN apt-get -y update \
-    && apt-get -f install -y wget perl \
-    && apt-get clean
-
-WORKDIR /
-
-RUN mkdir -p /tinytex/ \
-    && chmod -R +rwx /tinytex/
+# Final image
+FROM ubuntu:24.04
 
 ENV USER_UID=2001 \
     USER_NAME=appuser \
@@ -54,31 +46,36 @@ ENV USER_UID=2001 \
     BINDIR="$HOME/bin" \
     TLMGRDIR=/tinytex/.TinyTeX/bin/x86_64-linux
 
-RUN addgroup ${GROUP_NAME}
-RUN adduser --ingroup ${GROUP_NAME} -uid ${USER_UID} ${USER_NAME}
+ENV PATH="$PATH:$TEXDIR"
 
-# download tinytex
-RUN mkdir -p /tmp/tinytex/
-RUN wget --retry-connrefused --progress=dot:giga -O /tmp/tinytex/tinytexTinyTeX.tar.gz ${TINYTEX_URL}
-RUN tar xzf /tmp/tinytex/tinytexTinyTeX.tar.gz -C ${TEXDIR}
-RUN rm /tmp/tinytex/tinytexTinyTeX.tar.gz
-
-ENV PATH="$PATH:${TEXDIR}"
-
-# installation by tlmgr
-RUN perl ${TLMGRDIR}/tlmgr option sys_bin ${BINDIR}
-RUN perl ${TLMGRDIR}/tlmgr postaction install script xetex
-RUN perl ${TLMGRDIR}/tlmgr path add
-
-COPY templates/ /templates/
-
-RUN mkdir -p /templates/custom/ /grafana/certificates/ /grafana/auth/
+WORKDIR /
 
 COPY --from=builder --chown=${USER_UID} /workspace/grafana-reporter /bin/grafana-reporter
+COPY templates/ /templates/
 
-RUN chmod +x /bin/grafana-reporter
-RUN chmod +rw /templates/ /grafana/
-RUN chown -R ${USER_UID}:${USER_UID} /templates/ /grafana/ /tinytex/
+RUN apt-get -y update \
+    && apt-get -f install -y \
+        wget \
+        perl \
+    && apt-get clean \
+    # Create TinyTex directory
+    && mkdir -p /tinytex/ \
+    && chmod -R +rwx /tinytex/ \
+    # Download TinyTex
+    && mkdir -p /tmp/tinytex/ \
+    && wget --retry-connrefused --progress=dot:giga -O /tmp/tinytex/tinytexTinyTeX.tar.gz ${TINYTEX_URL} \
+    && tar xzf /tmp/tinytex/tinytexTinyTeX.tar.gz -C ${TEXDIR} \
+    && rm -rf /tmp/tinytex/tinytexTinyTeX.tar.gz \
+    # Installation by tlmgr
+    && perl ${TLMGRDIR}/tlmgr option sys_bin ${BINDIR} \
+    && perl ${TLMGRDIR}/tlmgr postaction install script xetex \
+    && perl ${TLMGRDIR}/tlmgr path add \
+    # Create directories
+    && mkdir -p /templates/custom/ /grafana/certificates/ /grafana/auth/ \
+    # Grant permissions
+    && chmod +x /bin/grafana-reporter \
+    && chmod +rw /templates/ /grafana/ \
+    && chown -R ${USER_UID}:${USER_UID} /templates/ /grafana/ /tinytex/
 
 USER ${USER_UID}
 
