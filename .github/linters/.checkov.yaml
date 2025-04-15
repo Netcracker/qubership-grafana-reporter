@@ -1,0 +1,11 @@
+---
+quiet: true
+skip-check:
+- CKV_GHA_7 # The build output cannot be affected by user parameters other than the build entry point and the top-level source location. GitHub Actions workflow_dispatch inputs MUST be empty.
+- CKV_DOCKER_2 # Ensure that HEALTHCHECK instructions have been added to container images
+- CKV2_GHA_1 # Ensure top-level permissions are not set to write-all
+- CKV_OPENAPI_1 # Ensure that securityDefinitions is defined and not empty - version 2.0 files
+- CKV_OPENAPI_4 # Ensure that the global security field has rules defined
+- CKV_OPENAPI_5 # Ensure that security operations is not empty.
+- CKV_OPENAPI_6 # Ensure that security requirement defined in securityDefinitions - version 2.0 files
+- CKV_OPENAPI_17 # Ensure that operation objects have 'consumes' field defined for PUT, POST and PATCH operations - version 2.0 files
