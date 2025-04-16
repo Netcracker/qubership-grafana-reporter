@@ -224,7 +224,7 @@ docker run -d --name grafana-reporter \
   -v <grafana_certificates>:/grafana/certificates:ro \
   -v <path_to_custom_template_dir>:/templates/custom:ro \
   grafana-reporter:latest -logLevel debug -grafana https://10.10.10.10/grafana \
-  -dashboard monitoring-k8s-pod-resources -token glsa_9244xlVFZK0j8Lh4fU8Cz6Z5tO664zIi_7a762939 \
+  -dashboard monitoring-k8s-pod-resources -token glsa_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX_XXXXXXXX \
   -template gridTemplate -defaultFrom now-15m -defaultTo now -vars "var-datasource=default&var-cluster=&var-namespace=ingress-nginx&var-pod=ingress-nginx-controller-b25hj"
 ```
 
