@@ -5,36 +5,36 @@ It provides REST API and parameters to get dashboard data that you need.
 
 ## Table of Content
 
-* [Grafana-reporter](#grafana-reporter)
-  * [Table of Content](#table-of-content)
-  * [Overview](#overview)
-  * [Repository structure](#repository-structure)
-  * [Configuration](#configuration)
-    * [Environment variables](#environment-variables)
-    * [Command line arguments](#command-line-arguments)
-      * [Templates](#templates)
-      * [Default time range](#default-time-range)
-  * [How to start](#how-to-start)
-    * [Build](#build)
-    * [Definition of done](#definition-of-done)
-    * [Deploy](#deploy)
-      * [Prerequisites](#prerequisites)
-      * [Local](#local)
-        * [Run as job in Docker container](#run-as-job-in-docker-container)
-          * [Mounts](#mounts)
-        * [Run as REST API Service](#run-as-rest-api-service)
-          * [Authentication](#authentication)
-          * [Query parameters](#query-parameters)
-          * [Time range](#time-range)
-          * [Variables](#variables)
-          * [Template](#template)
-      * [Deploy with helm](#deploy-with-helm)
-    * [How to debug](#how-to-debug)
-    * [How to troubleshoot](#how-to-troubleshoot)
-      * [Rendering errors](#rendering-errors)
-  * [CI/CD](#cicd)
-  * [Evergreen strategy](#evergreen-strategy)
-  * [Useful links](#useful-links)
+- [Grafana-reporter](#grafana-reporter)
+  - [Table of Content](#table-of-content)
+  - [Overview](#overview)
+  - [Repository structure](#repository-structure)
+  - [Configuration](#configuration)
+    - [Environment variables](#environment-variables)
+    - [Command line arguments](#command-line-arguments)
+      - [Templates](#templates)
+      - [Default time range](#default-time-range)
+  - [How to start](#how-to-start)
+    - [Build](#build)
+    - [Definition of done](#definition-of-done)
+    - [Deploy](#deploy)
+      - [Prerequisites](#prerequisites)
+      - [Local](#local)
+        - [Run as job in Docker container](#run-as-job-in-docker-container)
+          - [Mounts](#mounts)
+        - [Run as REST API Service](#run-as-rest-api-service)
+          - [Authentication](#authentication)
+          - [Query parameters](#query-parameters)
+          - [Time range](#time-range)
+          - [Variables](#variables)
+          - [Template](#template)
+      - [Deploy with helm](#deploy-with-helm)
+    - [How to debug](#how-to-debug)
+    - [How to troubleshoot](#how-to-troubleshoot)
+      - [Rendering errors](#rendering-errors)
+  - [CI/CD](#cicd)
+  - [Evergreen strategy](#evergreen-strategy)
+  - [Useful links](#useful-links)
 
 ## Overview
 
@@ -52,17 +52,17 @@ the panels and then generates PDF document according to tex file. More informati
 
 ## Repository structure
 
-* `./docs` - any documentation related to grafana-reporter
-* `./dashboard` - main structured entities for dashboard generation
-* `./handle` - REST API registration
-* `./report` - report rendering logic
-* `./templates` - default TeX templates for reports
-* `./timerange` - Grafana timeranges parsing logic
-* `./main.go` - application entrypoint
+- `./docs` - any documentation related to grafana-reporter
+- `./dashboard` - main structured entities for dashboard generation
+- `./handle` - REST API registration
+- `./report` - report rendering logic
+- `./templates` - default TeX templates for reports
+- `./timerange` - Grafana timeranges parsing logic
+- `./main.go` - application entrypoint
 
 Files for microservice build:
 
-* `./Dockerfile` - to build Docker image
+- `./Dockerfile` - to build Docker image
 
 ## Configuration
 
@@ -71,17 +71,20 @@ Files for microservice build:
 There is a list of environment variables:
 
 <!-- markdownlint-disable line-length -->
+
 | Name                             | Description                                                                                                                       | Default |
 | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------- |
 | `MAX_CONCURRENT_RENDER_REQUESTS` | Maximum concurrent requests to grafana-image-renderer to request panels at the same time. It is not recommended to set high value | 4       |
 | `SAVE_TEMP_IMAGES`               | By default all panels images after report generated will be deleted. To save images set `true`                                    | false   |
+
 <!-- markdownlint-enable line-length -->
 
 ### Command line arguments
 
 <!-- markdownlint-disable line-length -->
+
 | Name               | Mandatory | Description                                                                         | Default value                  |
-| ------------------ | --------- |-------------------------------------------------------------------------------------| ------------------------------ |
+| ------------------ | --------- | ----------------------------------------------------------------------------------- | ------------------------------ |
 | logLevel           | no        | Log level of the application.                                                       | info                           |
 | grafana            | yes       | Grafana endpoint to get dashboard information from.                                 | localhost                      |
 | dashboard          | yes       | Dashboard UID to generate report for.                                               |                                |
@@ -96,17 +99,18 @@ There is a list of environment variables:
 | template           | no        | Tex Template name to layout panels by default.                                      | simpleTemplate                 |
 | defaultFrom        | no        | Time range begin of report.                                                         | now-30m                        |
 | defaultTo          | no        | Time range end of report.                                                           | now                            |
+
 <!-- markdownlint-enable line-length -->
 
 #### Templates
 
 There are two types of predefined tex templates for different purposes:
 
-* [simpleTemplate](./templates/simpleTemplate) - The standard size of page (A4), each panel is placed under the
-previous. This template can be used in case if you need to print the data.
-* [gridTemplate](./templates/gridTemplate) - (default) The template copies layout of panels in the original Grafana dashboard.
-   The size of the page tries to render panel in a beautified way.
-* [pngTemplate](./templates/pngTemplate) - The same as gridTemplate but returns file in PNG format.
+- [simpleTemplate](./templates/simpleTemplate) - The standard size of page (A4), each panel is placed under the
+  previous. This template can be used in case if you need to print the data.
+- [gridTemplate](./templates/gridTemplate) - (default) The template copies layout of panels in the original Grafana dashboard.
+  The size of the page tries to render panel in a beautified way.
+- [pngTemplate](./templates/pngTemplate) - The same as gridTemplate but returns file in PNG format.
 
 Also, you can use your own custom tex template as default. To do this, place your tex template under
 `/templates/custom/` directory and set the name of the file to `template` parameter.
@@ -132,8 +136,8 @@ If you need to build grafana-reporter manually, you can:
 2. Run only build job.
    Parameters:
 
-   * `REPOSITORY_NAME` - `qubership-grafana-reporter`
-   * `LOCATION` - your branch
+   - `REPOSITORY_NAME` - `qubership-grafana-reporter`
+   - `LOCATION` - your branch
 
 ### Definition of done
 
@@ -192,9 +196,9 @@ grafana:
       install: true
       host: grafana-reporter.cloud.org
       annotations:
-        nginx.ingress.kubernetes.io/proxy-connect-timeout: '300'
-        nginx.ingress.kubernetes.io/proxy-read-timeout: '300'
-        nginx.ingress.kubernetes.io/proxy-send-timeout: '300'
+        nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+        nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+        nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
 ```
 
 #### Local
@@ -229,11 +233,13 @@ docker run -d --name grafana-reporter \
 ###### Mounts
 
 <!-- markdownlint-disable line-length -->
+
 | Mount point            | Mandatory | Access | Description                                                                               |
 | ---------------------- | --------- | ------ | ----------------------------------------------------------------------------------------- |
 | /reports               | yes       | rw     | Directory where generated report will be saved                                            |
 | /grafana/certificates/ | no        | ro     | Certificates must be placed in the directory in `ca.pem`, `cery.crt` and `cert.key` files |
 | /templates/custom      | no        | ro     | If you want to create report generated on custom template, you should mount directory     |
+
 <!-- markdownlint-enable line-length -->
 
 ##### Run as REST API Service
@@ -269,21 +275,23 @@ curl http://<grafana_reporter>:<port>/api/v1/report/<uid> -H "Authorization: Bea
 There are parameters that you can add to query to customize report results:
 
 <!-- markdownlint-disable line-length -->
+
 | Name            | Description                                                                                    | If does not set                              |
 | --------------- | ---------------------------------------------------------------------------------------------- | -------------------------------------------- |
 | template        | Tex Template name to layout panels.                                                            | Value of application parameter `template`    |
 | from            | Time range of the request to render panels data.                                               | Value of application parameter `defaultFrom` |
 | to              | Time range of the request to render panels data.                                               | Value of application parameter `defaultTo`   |
 | renderCollapsed | Enable rendering collapsed panels. If true, all collapsed panels will be expanded and rendered | false                                        |
-| vars-*          | Grafana variables                                                                              | -                                            |
+| vars-\*         | Grafana variables                                                                              | -                                            |
+
 <!-- markdownlint-enable line-length -->
 
 ###### Time range
 
 Its values can be:
 
-* timestamp, for example `from=1706562000000&to=1706734799000`,
-* Grafana time range, for example `from=now-30m&to=now-15m`.
+- timestamp, for example `from=1706562000000&to=1706734799000`,
+- Grafana time range, for example `from=now-30m&to=now-15m`.
 
 For example:
 
@@ -348,7 +356,6 @@ To uninstall deployment run command:
 helm uninstall <any-release-name> --namespace <namespace>
 ```
 
-
 ### How to debug
 
 You can debug grafana-reporter locally with default or custom parameters in your IDE.
@@ -359,10 +366,10 @@ Grafana with grafana-image-renderer installed (cloud or VM).
 
 There are no well-defined rules for troubleshooting, as each task is unique, but there are some tips that can do:
 
-* See deployment parameters and cli flags
-* See logs of grafana-reporter
-* See logs and configuration of grafana-image-renderer
-* See logs and configuration (for example, timeouts) of Grafana
+- See deployment parameters and cli flags
+- See logs of grafana-reporter
+- See logs and configuration of grafana-image-renderer
+- See logs and configuration (for example, timeouts) of Grafana
 
 #### Rendering errors
 
@@ -392,9 +399,9 @@ deploying to stand k8s cluster. There are described stages in pipeline:
 
 To keep the component up to date, the following activities should be performed regularly:
 
-* Vulnerabilities fixing, dependencies update
-* Bug-fixing, improvement and feature implementation
+- Vulnerabilities fixing, dependencies update
+- Bug-fixing, improvement and feature implementation
 
 ## Useful links
 
-* [Swagger 2.0 REST API](docs/swagger.json)
+- [Swagger 2.0 REST API](docs/swagger.json)
