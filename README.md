@@ -47,7 +47,7 @@ There is a brief description how Grafana-reporter works. It is a RESTful applica
 time range, dashboard variables. It gets Grafana dashboard information via `/api/dashboards/uid/{uid}`. The response
 includes information about panels on the dashboard. The application sends requests to [grafana-image-renderer]
 and gets rendered panels with data in FullHD resolution.
-For PDF document generation Grafana-reporter uses tex command line tools and tex templates. It inserts in tex template
+For PDF document generation Grafana-reporter uses tex command-line tools and tex templates. It inserts in tex template
 the panels and then generates PDF document according to tex file. More information about templates can be found [here](#templates)
 
 ## Repository structure
@@ -81,13 +81,13 @@ There is a list of environment variables:
 
 <!-- markdownlint-disable line-length -->
 | Name               | Mandatory | Description                                                                         | Default value                  |
-| ------------------ | --------- | ----------------------------------------------------------------------------------- | ------------------------------ |
+| ------------------ | --------- |-------------------------------------------------------------------------------------| ------------------------------ |
 | logLevel           | no        | Log level of the application.                                                       | info                           |
 | grafana            | yes       | Grafana endpoint to get dashboard information from.                                 | localhost                      |
 | dashboard          | yes       | Dashboard UID to generate report for.                                               |                                |
-| user               | yes       | Credentials for Grafana user. You can set basic auth credentials or token (api key) |                                |
-| password           | yes       | Credentials for Grafana user. You can set basic auth credentials or token (api key) |                                |
-| token              | yes       | Credentials for Grafana user. You can set basic auth credentials or token (api key) |                                |
+| user               | yes       | Credentials for Grafana user. You can set basic auth credentials or token (API key) |                                |
+| password           | yes       | Credentials for Grafana user. You can set basic auth credentials or token (API key) |                                |
+| token              | yes       | Credentials for Grafana user. You can set basic auth credentials or token (API key) |                                |
 | vars               | no        | Dashboard variables separated by `&`.                                               |                                |
 | insecureSkipVerify | no        | Verify Grafana certificates or not.                                                 | false                          |
 | ca                 | no        | Name of Certificate Authority file                                                  | /grafana/certificates/ca.pem   |
@@ -100,13 +100,13 @@ There is a list of environment variables:
 
 #### Templates
 
-There are two types of pre-defined tex templates for different purposes:
+There are two types of predefined tex templates for different purposes:
 
 * [simpleTemplate](./templates/simpleTemplate) - The standard size of page (A4), each panel is placed under the
 previous. This template can be used in case if you need to print the data.
 * [gridTemplate](./templates/gridTemplate) - (default) The template copies layout of panels in the original Grafana dashboard.
    The size of the page tries to render panel in a beautified way.
-* [pngTemplate](./templates/pngTemplate) - The same as gridTemplate but returns file in png format.
+* [pngTemplate](./templates/pngTemplate) - The same as gridTemplate but returns file in PNG format.
 
 Also, you can use your own custom tex template as default. To do this, place your tex template under
 `/templates/custom/` directory and set the name of the file to `template` parameter.
@@ -212,7 +212,7 @@ docker run -d --name grafana-reporter \
   <docker_image> <parameters>
 ```
 
-The list of parameters described [below](#command-line-parameters). About mounts you can read [here](#mounts).
+The list of parameters described [below](#command-line-arguments). About mounts you can read [here](#mounts).
 
 The example:
 
