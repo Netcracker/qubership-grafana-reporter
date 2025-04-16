@@ -48,7 +48,7 @@ time range, dashboard variables. It gets Grafana dashboard information via `/api
 includes information about panels on the dashboard. The application sends requests to [grafana-image-renderer]
 and gets rendered panels with data in FullHD resolution.
 For PDF document generation Grafana-reporter uses tex command line tools and tex templates. It inserts in tex template
-the panels and then generates PDF document according to tex file. More information about templates can be found [here](docs/public/configuration.md/#template)
+the panels and then generates PDF document according to tex file. More information about templates can be found [here](#templates)
 
 ## Repository structure
 
@@ -316,7 +316,7 @@ For example:
 curl 'http://<user>:<password>@<grafana_reporter>:<port>/api/v1/report/<uid>?template=simpleTemplate' --output /report.pdf
 ```
 
-You can learn about templates [here](configuration.md#template).
+You can learn about templates [here](#template).
 
 #### Deploy with helm
 
@@ -397,7 +397,4 @@ To keep the component up to date, the following activities should be performed r
 
 ## Useful links
 
-* [Configuration parameters](docs/public/configuration.md)
-* [Usage guide](docs/public/usage.md)
 * [Swagger 2.0 REST API](docs/swagger.json)
-* [Usage and examples](docs/public/usage.md)
