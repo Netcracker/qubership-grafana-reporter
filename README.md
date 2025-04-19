@@ -47,22 +47,22 @@ There is a brief description how Grafana-reporter works. It is a RESTful applica
 time range, dashboard variables. It gets Grafana dashboard information via `/api/dashboards/uid/{uid}`. The response
 includes information about panels on the dashboard. The application sends requests to [grafana-image-renderer]
 and gets rendered panels with data in FullHD resolution.
-For PDF document generation Grafana-reporter uses tex command line tools and tex templates. It inserts in tex template
-the panels and then generates PDF document according to tex file. More information about templates can be found [here](docs/public/configuration.md/#template)
+For PDF document generation Grafana-reporter uses tex command-line tools and tex templates. It inserts in tex template
+the panels and then generates PDF document according to tex file. More information about templates can be found [here](#templates)
 
 ## Repository structure
 
-* `./docs` - any documentation related to grafana-reporter
-* `./dashboard` - main structured entities for dashboard generation
-* `./handle` - REST API registration
-* `./report` - report rendering logic
-* `./templates` - default TeX templates for reports
-* `./timerange` - Grafana timeranges parsing logic
-* `./main.go` - application entrypoint
+* `./docs` — any documentation related to grafana-reporter
+* `./dashboard` — main structured entities for dashboard generation
+* `./handle` — REST API registration
+* `./report` — report rendering logic
+* `./templates` — default TeX templates for reports
+* `./timerange` — Grafana timeranges parsing logic
+* `./main.go` — application entrypoint
 
 Files for microservice build:
 
-* `./Dockerfile` - to build Docker image
+* `./Dockerfile` — to build Docker image
 
 ## Configuration
 
@@ -71,23 +71,26 @@ Files for microservice build:
 There is a list of environment variables:
 
 <!-- markdownlint-disable line-length -->
+
 | Name                             | Description                                                                                                                       | Default |
 | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------- |
 | `MAX_CONCURRENT_RENDER_REQUESTS` | Maximum concurrent requests to grafana-image-renderer to request panels at the same time. It is not recommended to set high value | 4       |
 | `SAVE_TEMP_IMAGES`               | By default all panels images after report generated will be deleted. To save images set `true`                                    | false   |
+
 <!-- markdownlint-enable line-length -->
 
 ### Command line arguments
 
 <!-- markdownlint-disable line-length -->
+
 | Name               | Mandatory | Description                                                                         | Default value                  |
 | ------------------ | --------- | ----------------------------------------------------------------------------------- | ------------------------------ |
 | logLevel           | no        | Log level of the application.                                                       | info                           |
 | grafana            | yes       | Grafana endpoint to get dashboard information from.                                 | localhost                      |
 | dashboard          | yes       | Dashboard UID to generate report for.                                               |                                |
-| user               | yes       | Credentials for Grafana user. You can set basic auth credentials or token (api key) |                                |
-| password           | yes       | Credentials for Grafana user. You can set basic auth credentials or token (api key) |                                |
-| token              | yes       | Credentials for Grafana user. You can set basic auth credentials or token (api key) |                                |
+| user               | yes       | Credentials for Grafana user. You can set basic auth credentials or token (API key) |                                |
+| password           | yes       | Credentials for Grafana user. You can set basic auth credentials or token (API key) |                                |
+| token              | yes       | Credentials for Grafana user. You can set basic auth credentials or token (API key) |                                |
 | vars               | no        | Dashboard variables separated by `&`.                                               |                                |
 | insecureSkipVerify | no        | Verify Grafana certificates or not.                                                 | false                          |
 | ca                 | no        | Name of Certificate Authority file                                                  | /grafana/certificates/ca.pem   |
@@ -96,17 +99,18 @@ There is a list of environment variables:
 | template           | no        | Tex Template name to layout panels by default.                                      | simpleTemplate                 |
 | defaultFrom        | no        | Time range begin of report.                                                         | now-30m                        |
 | defaultTo          | no        | Time range end of report.                                                           | now                            |
+
 <!-- markdownlint-enable line-length -->
 
 #### Templates
 
-There are two types of pre-defined tex templates for different purposes:
+There are two types of predefined tex templates for different purposes:
 
-* [simpleTemplate](./templates/simpleTemplate) - The standard size of page (A4), each panel is placed under the
-previous. This template can be used in case if you need to print the data.
-* [gridTemplate](./templates/gridTemplate) - (default) The template copies layout of panels in the original Grafana dashboard.
-   The size of the page tries to render panel in a beautified way.
-* [pngTemplate](./templates/pngTemplate) - The same as gridTemplate but returns file in png format.
+* [simpleTemplate](./templates/simpleTemplate) — The standard size of page (A4), each panel is placed under the
+  previous. This template can be used in case if you need to print the data.
+* [gridTemplate](./templates/gridTemplate) — (default) The template copies layout of panels in the original Grafana dashboard.
+  The size of the page tries to render panel in a beautified way.
+* [pngTemplate](./templates/pngTemplate) — The same as gridTemplate but returns file in PNG format.
 
 Also, you can use your own custom tex template as default. To do this, place your tex template under
 `/templates/custom/` directory and set the name of the file to `template` parameter.
@@ -129,11 +133,9 @@ So you do not need to run build job manually. You can find the image in `build-s
 If you need to build grafana-reporter manually, you can:
 
 1. Run CI pipeline.
-2. Run only build job.
-   Parameters:
-
-   * `REPOSITORY_NAME` - `qubership-grafana-reporter`
-   * `LOCATION` - your branch
+2. Run only build job. Parameters:
+   * `REPOSITORY_NAME` — `qubership-grafana-reporter`
+   * `LOCATION` — your branch
 
 ### Definition of done
 
@@ -192,9 +194,9 @@ grafana:
       install: true
       host: grafana-reporter.cloud.org
       annotations:
-        nginx.ingress.kubernetes.io/proxy-connect-timeout: '300'
-        nginx.ingress.kubernetes.io/proxy-read-timeout: '300'
-        nginx.ingress.kubernetes.io/proxy-send-timeout: '300'
+        nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+        nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+        nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
 ```
 
 #### Local
@@ -212,7 +214,7 @@ docker run -d --name grafana-reporter \
   <docker_image> <parameters>
 ```
 
-The list of parameters described [below](#command-line-parameters). About mounts you can read [here](#mounts).
+The list of parameters described [below](#command-line-arguments). About mounts you can read [here](#mounts).
 
 The example:
 
@@ -222,18 +224,20 @@ docker run -d --name grafana-reporter \
   -v <grafana_certificates>:/grafana/certificates:ro \
   -v <path_to_custom_template_dir>:/templates/custom:ro \
   grafana-reporter:latest -logLevel debug -grafana https://10.10.10.10/grafana \
-  -dashboard monitoring-k8s-pod-resources -token glsa_9244xlVFZK0j8Lh4fU8Cz6Z5tO664zIi_7a762939 \
+  -dashboard monitoring-k8s-pod-resources -token glsa_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX_XXXXXXXX \
   -template gridTemplate -defaultFrom now-15m -defaultTo now -vars "var-datasource=default&var-cluster=&var-namespace=ingress-nginx&var-pod=ingress-nginx-controller-b25hj"
 ```
 
 ###### Mounts
 
 <!-- markdownlint-disable line-length -->
+
 | Mount point            | Mandatory | Access | Description                                                                               |
 | ---------------------- | --------- | ------ | ----------------------------------------------------------------------------------------- |
 | /reports               | yes       | rw     | Directory where generated report will be saved                                            |
 | /grafana/certificates/ | no        | ro     | Certificates must be placed in the directory in `ca.pem`, `cery.crt` and `cert.key` files |
 | /templates/custom      | no        | ro     | If you want to create report generated on custom template, you should mount directory     |
+
 <!-- markdownlint-enable line-length -->
 
 ##### Run as REST API Service
@@ -269,13 +273,15 @@ curl http://<grafana_reporter>:<port>/api/v1/report/<uid> -H "Authorization: Bea
 There are parameters that you can add to query to customize report results:
 
 <!-- markdownlint-disable line-length -->
+
 | Name            | Description                                                                                    | If does not set                              |
 | --------------- | ---------------------------------------------------------------------------------------------- | -------------------------------------------- |
 | template        | Tex Template name to layout panels.                                                            | Value of application parameter `template`    |
 | from            | Time range of the request to render panels data.                                               | Value of application parameter `defaultFrom` |
 | to              | Time range of the request to render panels data.                                               | Value of application parameter `defaultTo`   |
 | renderCollapsed | Enable rendering collapsed panels. If true, all collapsed panels will be expanded and rendered | false                                        |
-| vars-*          | Grafana variables                                                                              | -                                            |
+| vars-\*         | Grafana variables                                                                              | —                                            |
+
 <!-- markdownlint-enable line-length -->
 
 ###### Time range
@@ -316,7 +322,7 @@ For example:
 curl 'http://<user>:<password>@<grafana_reporter>:<port>/api/v1/report/<uid>?template=simpleTemplate' --output /report.pdf
 ```
 
-You can learn about templates [here](configuration.md#template).
+You can learn about templates [here](#template).
 
 #### Deploy with helm
 
@@ -347,7 +353,6 @@ To uninstall deployment run command:
 ```helm
 helm uninstall <any-release-name> --namespace <namespace>
 ```
-
 
 ### How to debug
 
@@ -384,9 +389,9 @@ It means that the error occurred in line 19. To see `.tex` file generated by gra
 The main CI/CD pipeline designed to automize all basic developer routine start from code quality and finish with
 deploying to stand k8s cluster. There are described stages in pipeline:
 
-1. `lint` - stage with jobs that run different linter to check code & documentation.
-2. `tests` - stage with jobs with units tests and other go code checks.
-3. `build` - stage with jobs that build docker image of grafana-reporter.
+1. `lint` — stage with jobs that run different linter to check code & documentation.
+2. `tests` — stage with jobs with units tests and other go code checks.
+3. `build` — stage with jobs that build docker image of grafana-reporter.
 
 ## Evergreen strategy
 
@@ -397,7 +402,4 @@ To keep the component up to date, the following activities should be performed r
 
 ## Useful links
 
-* [Configuration parameters](docs/public/configuration.md)
-* [Usage guide](docs/public/usage.md)
 * [Swagger 2.0 REST API](docs/swagger.json)
-* [Usage and examples](docs/public/usage.md)
