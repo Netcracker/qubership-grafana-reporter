@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # hadolint global ignore=DL3008
-FROM --platform=$BUILDPLATFORM:1.24.2-alpine3.21 AS builder
+FROM --platform=$BUILDPLATFORM golang:1.24.2-alpine3.21 AS builder
 ARG BUILDPLATFORM
 ARG TARGETOS
 ARG TARGETARCH
