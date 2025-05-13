@@ -13,7 +13,10 @@
 # limitations under the License.
 
 # hadolint global ignore=DL3008
-FROM golang:1.24.2-alpine3.21 AS builder
+FROM --platform=$BUILDPLATFORM:1.24.2-alpine3.21 AS builder
+ARG BUILDPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
 
 WORKDIR /workspace
 
@@ -34,7 +37,7 @@ COPY report/ report/
 COPY timerange/ timerange/
 
 # Build
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o grafana-reporter .
+RUN CGO_ENABLED=0 GOOS={TARGETOS} GOARCH={TARGETARCH} GO111MODULE=on go build -a -o grafana-reporter .
 
 # Final image
 FROM ubuntu:24.04
