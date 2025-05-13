@@ -37,7 +37,7 @@ COPY report/ report/
 COPY timerange/ timerange/
 
 # Build
-RUN CGO_ENABLED=0 GOOS={TARGETOS} GOARCH={TARGETARCH} GO111MODULE=on go build -a -o grafana-reporter .
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} GO111MODULE=on go build -a -o grafana-reporter .
 
 # Final image
 FROM ubuntu:24.04
