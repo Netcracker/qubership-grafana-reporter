@@ -13,41 +13,34 @@
 # limitations under the License.
 
 # hadolint global ignore=DL3008
-FROM golang:1.24.2-alpine3.21 AS builder
+FROM --platform=$BUILDPLATFORM golang:1.24.2-alpine3.21 AS builder
+ARG BUILDPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
 
 WORKDIR /workspace
 
-# Copy the Go Modules manifests
-COPY go.mod go.mod
-COPY go.sum go.sum
-
-# Cache deps before building and copying source so that we don't need to re-download as much
-# and so that source changes don't invalidate our downloaded layer
+COPY go.mod go.sum ./
 RUN go mod download
 
-# Copy the go source
-COPY main.go main.go
-COPY shutdown.go shutdown.go
+COPY main.go shutdown.go ./
 COPY dashboard/ dashboard/
 COPY handle/ handle/
 COPY report/ report/
 COPY timerange/ timerange/
 
-# Build
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o grafana-reporter .
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} GO111MODULE=on go build -a -o grafana-reporter .
 
 # Final image
 FROM ubuntu:24.04
 
+ARG TARGETARCH
 ENV USER_UID=2001 \
     USER_NAME=appuser \
     GROUP_NAME=appuser \
     TINYTEX_URL="https://github.com/rstudio/tinytex-releases/releases/download/v2024.12/TinyTeX-0-v2024.12.tar.gz" \
     TEXDIR=/tinytex \
-    BINDIR="$HOME/bin" \
-    TLMGRDIR=/tinytex/.TinyTeX/bin/x86_64-linux
-
-ENV PATH="$PATH:$TEXDIR"
+    BINDIR="$HOME/bin"
 
 WORKDIR /
 
@@ -55,29 +48,26 @@ COPY --from=builder --chown=${USER_UID} /workspace/grafana-reporter /bin/grafana
 COPY templates/ /templates/
 
 RUN apt-get -y update \
-    && apt-get -f install -y \
-        wget \
-        perl \
+    && apt-get install -y wget perl \
     && apt-get clean \
-    # Create TinyTex directory
-    && mkdir -p /tinytex/ \
-    && chmod -R +rwx /tinytex/ \
-    # Download TinyTex
-    && mkdir -p /tmp/tinytex/ \
-    && wget --retry-connrefused --progress=dot:giga -O /tmp/tinytex/tinytexTinyTeX.tar.gz ${TINYTEX_URL} \
-    && tar xzf /tmp/tinytex/tinytexTinyTeX.tar.gz -C ${TEXDIR} \
-    && rm -rf /tmp/tinytex/tinytexTinyTeX.tar.gz \
-    # Installation by tlmgr
-    && perl ${TLMGRDIR}/tlmgr option sys_bin ${BINDIR} \
-    && perl ${TLMGRDIR}/tlmgr postaction install script xetex \
-    && perl ${TLMGRDIR}/tlmgr path add \
-    # Create directories
     && mkdir -p /templates/custom/ /grafana/certificates/ /grafana/auth/ \
-    # Grant permissions
     && chmod +x /bin/grafana-reporter \
     && chmod +rw /templates/ /grafana/ \
-    && chown -R ${USER_UID}:${USER_UID} /templates/ /grafana/ /tinytex/
+    && chown -R ${USER_UID}:${USER_UID} /templates/ /grafana/
+
+# Only install TinyTeX if on amd64
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+      mkdir -p /tinytex/ && chmod -R +rwx /tinytex/ \
+      && mkdir -p /tmp/tinytex/ \
+      && wget --retry-connrefused --progress=dot:giga -O /tmp/tinytex/tinytexTinyTeX.tar.gz ${TINYTEX_URL} \
+      && tar xzf /tmp/tinytex/tinytexTinyTeX.tar.gz -C ${TEXDIR} \
+      && rm -rf /tmp/tinytex/tinytexTinyTeX.tar.gz \
+      && perl /tinytex/.TinyTeX/bin/x86_64-linux/tlmgr option sys_bin ${BINDIR} \
+      && perl /tinytex/.TinyTeX/bin/x86_64-linux/tlmgr postaction install script xetex \
+      && perl /tinytex/.TinyTeX/bin/x86_64-linux/tlmgr path add \
+      && chown -R ${USER_UID}:${USER_UID} /tinytex/ ; \
+    fi
 
 USER ${USER_UID}
-
 ENTRYPOINT [ "/bin/grafana-reporter" ]
+
