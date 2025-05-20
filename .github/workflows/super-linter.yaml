@@ -14,10 +14,10 @@ name: Lint Code Base
 on:
   push:
     branches:
-    - '**'
+      - '**'
   pull_request:
     branches:
-    - '**'
+      - '**'
   workflow_dispatch:
     inputs:
       full_scan:
@@ -32,22 +32,22 @@ jobs:
   run-lint:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        # Full git history is needed to get a proper list of changed files within `super-linter`
-        fetch-depth: 0
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Full git history is needed to get a proper list of changed files within `super-linter`
+          fetch-depth: 0
 
-    - name: "Load super-linter environment file"
-      run: |
-        # shellcheck disable=2086
-        if [ -f "./.github/super-linter.env" ]; then
-          grep "\S" ./.github/super-linter.env | grep -v "^#"
-          grep "\S" ./.github/super-linter.env | grep -v "^#" >> $GITHUB_ENV
-        fi
+      - name: "Load super-linter environment file"
+        run: |
+          # shellcheck disable=2086
+          if [ -f "./.github/super-linter.env" ]; then
+            grep "\S" ./.github/super-linter.env | grep -v "^#"
+            grep "\S" ./.github/super-linter.env | grep -v "^#" >> $GITHUB_ENV
+          fi
 
-    - name: Lint Code Base
-      uses: super-linter/super-linter/slim@v7.3.0
-      env:
-        VALIDATE_ALL_CODEBASE: ${{ inputs.full_scan || false }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Lint Code Base
+        uses: super-linter/super-linter@v7
+        env:
+          VALIDATE_ALL_CODEBASE: ${{ inputs.full_scan || false }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
