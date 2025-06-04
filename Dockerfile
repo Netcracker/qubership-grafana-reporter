@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # hadolint global ignore=DL3008
-FROM golang:1.24.2-alpine3.21 AS builder
+FROM golang:1.24.3-alpine3.21 AS builder
 
 WORKDIR /workspace
 
