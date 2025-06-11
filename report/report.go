@@ -183,9 +183,9 @@ func (g *GrafanaInstance) generateReport(dashboardID string, timerangeData *time
 //	@Summary		Get names of available tex templates
 //	@Description	Get names of all available tex templates
 //	@Tags			General
-//	@id             getTexTemplates
+//	@id				getTexTemplates
 //	@Produce		json
-//	@Success		200	{object}	string "OK"
+//	@Success		200	{object}	string	"OK"
 //	@Router			/api/v1/templates [get]
 func (g *GrafanaInstance) HandleGetTemplatesList(writer http.ResponseWriter) {
 	writer.Header().Set("Content-Type", "application/json")
@@ -205,12 +205,12 @@ func (g *GrafanaInstance) HandleGetTemplatesList(writer http.ResponseWriter) {
 //	@Summary		Get tex template by name
 //	@Description	Get tex template by name
 //	@Tags			General
-//	@id             getTexTemplate
-//	@Param          template   path string true "PDF tex template name"
+//	@id				getTexTemplate
+//	@Param			template	path	string	true	"PDF tex template name"
 //	@Produce		json
-//	@Success		200	{object}	map[string]string "OK"
-//	@Failure		400	{string}    string "Bad Request"
-//	@Failure		404	{string}    string "Not Found"
+//	@Success		200	{object}	map[string]string	"OK"
+//	@Failure		400	{string}	string				"Bad Request"
+//	@Failure		404	{string}	string				"Not Found"
 //	@Router			/api/v1/report/{template} [get]
 func (g *GrafanaInstance) HandleGetTemplate(writer http.ResponseWriter, request *http.Request) {
 	urlPath := strings.Split(request.URL.Path, "/")
@@ -248,9 +248,9 @@ func (g *GrafanaInstance) HandleGetTemplate(writer http.ResponseWriter, request 
 //	@Summary		Get values of default parameters
 //	@Description	Get values of default parameters such as default template and time range
 //	@Tags			General
-//	@id             getDefaults
+//	@id				getDefaults
 //	@Produce		json
-//	@Success		200	{object}	string "OK"
+//	@Success		200	{object}	string	"OK"
 //	@Router			/api/v1/defaults [get]
 func (g *GrafanaInstance) HandleGetDefaultParameters(writer http.ResponseWriter) {
 	writer.Header().Set("Content-Type", "application/json")
@@ -271,16 +271,16 @@ func (g *GrafanaInstance) HandleGetDefaultParameters(writer http.ResponseWriter)
 //	@Summary		Generate Grafana dashboard report
 //	@Description	Generate Grafana dashboard report in PDF file. You can set time range, tex template and other parameters `var-` from Grafana
 //	@Tags			Generate
-//	@id             generateReport
-//	@Param			Authorization	header		string	true	"Authentication header"
-//	@Param          dashboard_uid   path string true "Dashboard UID"
-//	@Param          template   query string false "PDF tex template name"
-//	@Param          from   query string false "The start of time range"
-//	@Param          to   query string false "The end of time range"
+//	@id				generateReport
+//	@Param			Authorization	header	string	true	"Authentication header"
+//	@Param			dashboard_uid	path	string	true	"Dashboard UID"
+//	@Param			template		query	string	false	"PDF tex template name"
+//	@Param			from			query	string	false	"The start of time range"
+//	@Param			to				query	string	false	"The end of time range"
 //	@Produce		octet-stream
-//	@Success		200	{object}    string "OK"
-//	@Failure		400	{string}    string "Bad Request"
-//	@Failure		401	{string}    string "Unauthorized"
+//	@Success		200	{object}	string	"OK"
+//	@Failure		400	{string}	string	"Bad Request"
+//	@Failure		401	{string}	string	"Unauthorized"
 //	@Router			/api/v1/report/{dashboard_uid} [get]
 //	@Router			/api/v1/report/{dashboard_uid} [post]
 func (g *GrafanaInstance) HandleGenerateReport(writer http.ResponseWriter, request *http.Request) {

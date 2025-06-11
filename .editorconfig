@@ -33,3 +33,7 @@ profile = black
 
 [*.sh]
 indent_size = 4
+
+[/docs/**]
+indent_size = unset
+indent_style = unset

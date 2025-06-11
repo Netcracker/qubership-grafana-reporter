@@ -36,16 +36,16 @@ import (
 	"github.com/Netcracker/grafana-reporter/report"
 )
 
-// @title			Grafana Reporter REST API
-// @version		    1.0
-// @description	    This document describes REST API for Grafana Reporter.
-// @license.name	Qubership
-// @license.url	    https://www.qubership.org/
-// @tag.name	    Generate
-// @tag.description Create reports of Grafana dashboard with the set of parameters
-// @tag.name	    General
-// @tag.description Get application information
-// @host            GRAFANA_REPORTER:8881
+//	@title				Grafana Reporter REST API
+//	@version			1.0
+//	@description		This document describes REST API for Grafana Reporter.
+//	@license.name		Qubership
+//	@license.url		https://www.qubership.org/
+//	@tag.name			Generate
+//	@tag.description	Create reports of Grafana dashboard with the set of parameters
+//	@tag.name			General
+//	@tag.description	Get application information
+//	@host				GRAFANA_REPORTER:8881
 func main() {
 	logLevel := flag.String("logLevel", "info", "Log level of the application")
 	port := flag.String("port", ":8881", "Application port")
