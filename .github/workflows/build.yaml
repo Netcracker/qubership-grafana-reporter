@@ -26,6 +26,7 @@ jobs:
         component:
           - name: qubership-grafana-reporter
             file: Dockerfile
+            context: .
     runs-on: ubuntu-latest
     name: ${{ matrix.component.name }}
     steps:
