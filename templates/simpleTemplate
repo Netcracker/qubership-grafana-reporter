@@ -2,7 +2,7 @@
 \usepackage{graphicx}
 \usepackage[a4paper, total={6in, 8in}]{geometry}
 
-\graphicspath{ {tmp/[[.StructDashboard.RequestId]]/} }
+\graphicspath{ {tmp/[[.StructDashboard.RequestID]]/} }
 
 \begin{document}
 \title{[[.StructDashboard.Title]]}
@@ -18,7 +18,7 @@ Variables: [[.Vars]]
 \vspace{0.5cm}
 \par \textup{[[rmdlr .Title]]}\par
 \vspace{0.5cm}
-[[range .Panels]]\includegraphics[width=[[.GetRelativeWidth 1920]]\textwidth]{[[.Id]].png}
+[[range .Panels]]\includegraphics[width=[[.GetRelativeWidth 1920]]\textwidth]{[[.ID]].png}
 \par
 \vspace{0.2cm}[[end]][[end]]
 \end{center}
