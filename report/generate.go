@@ -128,15 +128,19 @@ func generateFile(templateBody string, structuredDashboard *dashboard.Structured
 	return nil
 }
 
+// isSafeFileName ensures the file name does not contain path traversal or separator chars.
+func isSafeFileName(name string) bool {
+	if name == "" || strings.Contains(name, "/") || strings.Contains(name, "\\") || strings.Contains(name, "..") {
+		return false
+	}
+	return true
+}
+
 func getReport(requestID string) ([]byte, error) {
-	// Sanitize requestID to prevent path traversal and other issues
-	safeRequestID := strings.Map(func(r rune) rune {
-		if r == '_' || r == '-' || (r >= '0' && r <= '9') || (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') {
-			return r
-		}
-		return '_'
-	}, requestID)
-	report, err := os.ReadFile(path.Join(reportsDir, fmt.Sprintf("%s.pdf", safeRequestID)))
+	if !isSafeFileName(requestID) {
+		return nil, fmt.Errorf("invalid report id") // block path traversal
+	}
+	report, err := os.ReadFile(path.Join(reportsDir, fmt.Sprintf("%s.pdf", requestID)))
 	if err != nil {
 		return nil, err
 	}
