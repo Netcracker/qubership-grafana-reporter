@@ -28,6 +28,7 @@ import (
 
 	"github.com/Netcracker/grafana-reporter/dashboard"
 	"github.com/Netcracker/grafana-reporter/timerange"
+	"github.com/Netcracker/grafana-reporter/utils"
 )
 
 type pdfData struct {
@@ -55,6 +56,9 @@ func generatePdf(templateBody string, structuredDashboard *dashboard.StructuredD
 
 	if err = os.MkdirAll(reportsDir, 0777); err != nil {
 		return fmt.Errorf("failed to create reports directory. Error: %w", err)
+	}
+	if !utils.IsSafeFileName(structuredDashboard.RequestID) {
+		return fmt.Errorf("invalid request id") // block path traversal
 	}
 	fileTexName := fmt.Sprintf("%s.tex", structuredDashboard.RequestID)
 	fileTex, err := os.Create(path.Join(reportsDir, fileTexName))
@@ -104,6 +108,10 @@ func generateFile(templateBody string, structuredDashboard *dashboard.Structured
 			}
 		}
 		// delete all images from tmp directory
+		if !utils.IsSafeFileName(requestID) {
+			slog.Error("Invalid request id", "requestID", requestID)
+			return
+		}
 		dir := getPanelsDirPath(requestID)
 		entries, err := os.ReadDir(dir)
 		if err != nil {
@@ -113,6 +121,10 @@ func generateFile(templateBody string, structuredDashboard *dashboard.Structured
 		for _, entry := range entries {
 			if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".png") {
 				imageFile := path.Join(dir, entry.Name())
+				if !utils.IsSafeFileName(imageFile) { // block path traversal
+					slog.Error("Invalid image file", "error", err, "file", imageFile)
+					continue
+				}
 				if err = os.Remove(imageFile); err != nil {
 					slog.Error("Could not successfully delete image file", "error", err, "file", imageFile)
 				}
@@ -128,16 +140,8 @@ func generateFile(templateBody string, structuredDashboard *dashboard.Structured
 	return nil
 }
 
-// isSafeFileName ensures the file name does not contain path traversal or separator chars.
-func isSafeFileName(name string) bool {
-	if name == "" || strings.Contains(name, "/") || strings.Contains(name, "\\") || strings.Contains(name, "..") {
-		return false
-	}
-	return true
-}
-
 func getReport(requestID string) ([]byte, error) {
-	if !isSafeFileName(requestID) {
+	if !utils.IsSafeFileName(requestID) {
 		return nil, fmt.Errorf("invalid report id") // block path traversal
 	}
 	report, err := os.ReadFile(path.Join(reportsDir, fmt.Sprintf("%s.pdf", requestID)))

@@ -34,6 +34,7 @@ import (
 
 	"github.com/Netcracker/grafana-reporter/dashboard"
 	"github.com/Netcracker/grafana-reporter/timerange"
+	"github.com/Netcracker/grafana-reporter/utils"
 
 	"golang.org/x/sync/errgroup"
 	yaml "gopkg.in/yaml.v3"
@@ -536,9 +537,15 @@ func (g *GrafanaInstance) requestAndSaveGetPanel(urlString string, imageName str
 		return fmt.Errorf("failed to get Grafana panel: Status code is %v", res.StatusCode)
 	}
 
+	if !utils.IsSafeFileName(requestID) {
+		return fmt.Errorf("invalid request id") // block path traversal
+	}
 	panelsDirPath := getPanelsDirPath(requestID)
 	if err = os.MkdirAll(panelsDirPath, 0777); err != nil {
 		return fmt.Errorf("could not create directory for panel on path %q. Error: %w", panelsDirPath, err)
+	}
+	if !utils.IsSafeFileName(imageName) {
+		return fmt.Errorf("invalid image name") // block path traversal
 	}
 	fullFilePath := path.Join(panelsDirPath, imageName)
 	f, err := os.Create(fullFilePath)
