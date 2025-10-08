@@ -129,7 +129,14 @@ func generateFile(templateBody string, structuredDashboard *dashboard.Structured
 }
 
 func getReport(requestID string) ([]byte, error) {
-	report, err := os.ReadFile(path.Join(reportsDir, fmt.Sprintf("%s.pdf", requestID)))
+	// Sanitize requestID to prevent path traversal and other issues
+	safeRequestID := strings.Map(func(r rune) rune {
+		if r == '_' || r == '-' || (r >= '0' && r <= '9') || (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') {
+			return r
+		}
+		return '_'
+	}, requestID)
+	report, err := os.ReadFile(path.Join(reportsDir, fmt.Sprintf("%s.pdf", safeRequestID)))
 	if err != nil {
 		return nil, err
 	}
