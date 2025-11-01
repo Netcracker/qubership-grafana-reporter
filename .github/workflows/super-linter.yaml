@@ -40,7 +40,7 @@ jobs:
           sparse-checkout: |
             config/linters
       - name: "Upload the common linters configsuration"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: linter-config
           path: "${{ github.workspace }}/config"
