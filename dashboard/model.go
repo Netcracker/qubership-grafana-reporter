@@ -27,7 +27,7 @@ const (
 	panelsLimit            = 1000
 )
 
-type DashboardEntity struct {
+type Entity struct {
 	Dashboard `json:"dashboard"`
 	Meta      `json:"meta"`
 }
@@ -38,10 +38,10 @@ type Meta struct {
 type Dashboard struct {
 	Title  string  `json:"title"`
 	Panels []Panel `json:"panels"`
-	Uid    string  `json:"uid"`
+	UID    string  `json:"uid"`
 }
 type Panel struct {
-	Id        int  `json:"id"`
+	ID        int  `json:"id"`
 	Collapsed bool `json:"collapsed"`
 	GridPos   `json:"gridPos"`
 	Title     string  `json:"title"`
@@ -56,12 +56,12 @@ type GridPos struct {
 }
 
 type StructuredDashboard struct {
-	Uid       string
+	UID       string
 	Title     string
 	Slug      string
 	Rows      []*Row
 	Panels    []Panel
-	RequestId string
+	RequestID string
 }
 
 type Row struct {
@@ -70,17 +70,18 @@ type Row struct {
 	Panels []Panel
 }
 type PanelStructured struct {
-	Id    string
+	ID    string
 	Title string
 	GridPos
 	Type string
 }
 
-func (de *DashboardEntity) GetStructuredDashboard(renderCollapsed bool) (*StructuredDashboard, error) {
+func (de *Entity) GetStructuredDashboard(renderCollapsed bool) (*StructuredDashboard, error) {
 	var rows []*Row
 	panelsCount := 0
 	for _, rowOrPanel := range de.Panels {
-		if strings.EqualFold(rowOrPanel.Type, "row") {
+		switch {
+		case strings.EqualFold(rowOrPanel.Type, "row"):
 			if rowOrPanel.Collapsed == renderCollapsed {
 				rows = append(rows, &Row{
 					Title:   rowOrPanel.Title,
@@ -89,14 +90,14 @@ func (de *DashboardEntity) GetStructuredDashboard(renderCollapsed bool) (*Struct
 				})
 				panelsCount += len(rowOrPanel.Panels)
 			}
-		} else if !strings.EqualFold(rowOrPanel.Type, "row") && (len(rows) == 0 || !rowOrPanel.IsAddedToPreviousRow(*rows[len(rows)-1])) {
+		case !strings.EqualFold(rowOrPanel.Type, "row") && (len(rows) == 0 || !rowOrPanel.IsAddedToPreviousRow(*rows[len(rows)-1])):
 			rows = append(rows, &Row{
 				Title:   "",
 				GridPos: rowOrPanel.GridPos,
 				Panels:  []Panel{rowOrPanel},
 			})
 			panelsCount++
-		} else {
+		default:
 			rows[len(rows)-1].Panels = append(rows[len(rows)-1].Panels, rowOrPanel)
 			panelsCount++
 		}
@@ -107,7 +108,7 @@ func (de *DashboardEntity) GetStructuredDashboard(renderCollapsed bool) (*Struct
 	}
 
 	dsh := &StructuredDashboard{
-		Uid:   de.Uid,
+		UID:   de.UID,
 		Title: de.Title,
 		Slug:  de.Slug,
 		Rows:  rows,

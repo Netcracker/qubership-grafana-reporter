@@ -31,7 +31,7 @@ type TimerangeData struct {
 }
 
 var Format = "2006-01-02 15:04:05 +0000 UTC"
-var intervals_in_seconds = map[string]int{
+var intervalsInSeconds = map[string]int{
 	"y": 31536000,
 	"M": 2592000,
 	"w": 604800,
@@ -52,13 +52,14 @@ func RelativeTimeToTimestamp(currentTime time.Time, relativeTime string, fromOrT
 		return tsTime, nil
 	}
 	if isRelativeTime(relativeTime) {
-		if strings.HasPrefix(relativeTime, "now/") {
+		switch {
+		case strings.HasPrefix(relativeTime, "now/"):
 			return parseBoundaryTime(currentTime, relativeTime, fromOrTo)
-		} else if strings.HasPrefix(relativeTime, "now-") {
+		case strings.HasPrefix(relativeTime, "now-"):
 			return parseRelativeTime(currentTime, relativeTime, fromOrTo)
-		} else if strings.EqualFold(relativeTime, "now") {
+		case strings.EqualFold(relativeTime, "now"):
 			return currentTime, nil
-		} else {
+		default:
 			return time.Time{}, fmt.Errorf("could not cast relative time to time.Time")
 		}
 	} else {
@@ -214,7 +215,7 @@ func parseRelativeTime(currentTime time.Time, relativeTime string, fromOrTo stri
 		case "M":
 			tsTime = currentTime.AddDate(0, -count, 0)
 		default:
-			secondsUnit = intervals_in_seconds[match[2]]
+			secondsUnit = intervalsInSeconds[match[2]]
 			if secondsUnit == 0 {
 				return time.Time{}, fmt.Errorf("time value is not valid: %s", relativeTime)
 			}

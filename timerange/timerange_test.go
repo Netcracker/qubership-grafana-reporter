@@ -16,9 +16,10 @@
 package timerange
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // Test format now/[dwMy]
@@ -39,14 +40,14 @@ type TimerangeTestData struct {
 	TestName string
 	FromTR   string
 	ToTR     string
-	FromTS   string //datetime
+	FromTS   string // datetime
 	ToTS     string
 }
 
 var now = time.Date(2024, 1, 25, 14, 43, 12, 0, time.UTC)
-var nowString = now.Format(Format) //"2024-01-25 14:43:12 +0000 UTC"
+var nowString = now.Format(Format) // "2024-01-25 14:43:12 +0000 UTC"
 var testData = []TimerangeTestData{
-	//format now/[dwMy]
+	// format now/[dwMy]
 	{"From start of the day to now", "now/d", "now", "2024-01-25 00:00:00 +0000 UTC", nowString},
 	{"From start of the day to the end of the day (in future)", "now/d", "now/d", "2024-01-25 00:00:00 +0000 UTC", "2024-01-25 23:59:59 +0000 UTC"},
 	{"From the start of the current week to now", "now/w", "now", "2024-01-21 00:00:00 +0000 UTC", nowString},
@@ -55,7 +56,7 @@ var testData = []TimerangeTestData{
 	{"From the start of the month to the end of the month (in future)", "now/M", "now/M", "2024-01-01 00:00:00 +0000 UTC", "2024-01-31 23:59:59 +0000 UTC"},
 	{"From the start of the year to now", "now/y", "now", "2024-01-01 00:00:00 +0000 UTC", nowString},
 	{"From the start of the year to the end of the year (in future)", "now/y", "now/y", "2024-01-01 00:00:00 +0000 UTC", "2024-12-31 23:59:59 +0000 UTC"},
-	//format now-\d*[mhdwMy]
+	// format now-\d*[mhdwMy]
 	{"Last 5 minutes", "now-5m", "now", "2024-01-25 14:38:12 +0000 UTC", nowString},
 	{"Last 15 minutes", "now-15m", "now", "2024-01-25 14:28:12 +0000 UTC", nowString},
 	{"Last 30 minutes", "now-30m", "now", "2024-01-25 14:13:12 +0000 UTC", nowString},
@@ -75,7 +76,7 @@ var testData = []TimerangeTestData{
 	{"Last 6 months", "now-6M", "now", "2023-07-25 14:43:12 +0000 UTC", nowString},
 	{"Last year", "now-1y", "now", "2023-01-25 14:43:12 +0000 UTC", nowString},
 	{"Last 2 years", "now-2y", "now", "2022-01-25 14:43:12 +0000 UTC", nowString},
-	//format now-\d*[dwMy]/[dwMy]
+	// format now-\d*[dwMy]/[dwMy]
 	{"Yesterday", "now-1d/d", "now-1d/d", "2024-01-24 00:00:00 +0000 UTC", "2024-01-24 23:59:59 +0000 UTC"},
 	{"Day before yesterday", "now-2d/d", "now-2d/d", "2024-01-23 00:00:00 +0000 UTC", "2024-01-23 23:59:59 +0000 UTC"},
 	{"This day last week", "now-7d/d", "now-7d/d", "2024-01-18 00:00:00 +0000 UTC", "2024-01-18 23:59:59 +0000 UTC"},

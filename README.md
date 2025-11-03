@@ -48,7 +48,7 @@ time range, dashboard variables. It gets Grafana dashboard information via `/api
 includes information about panels on the dashboard. The application sends requests to [grafana-image-renderer]
 and gets rendered panels with data in FullHD resolution.
 For PDF document generation Grafana-reporter uses tex command-line tools and tex templates. It inserts in tex template
-the panels and then generates PDF document according to tex file. More information about templates can be found [here](#templates)
+the panels and then generates PDF document according to tex file. More information about templates can be found [in Templates Section](#templates)
 
 ## Repository structure
 
@@ -203,7 +203,7 @@ grafana:
 
 ##### Run as job in Docker container
 
-Grafana-reporter can be launched directly as docker container from your machine.
+Grafana-reporter can be launched directly as Docker container from your machine.
 To run grafana-reporter, execute the command:
 
 ```bash
@@ -214,7 +214,7 @@ docker run -d --name grafana-reporter \
   <docker_image> <parameters>
 ```
 
-The list of parameters described [below](#command-line-arguments). About mounts you can read [here](#mounts).
+The list of parameters described [below](#command-line-arguments). About mounts you can read [in Mounts Section](#mounts).
 
 The example:
 
@@ -242,7 +242,7 @@ docker run -d --name grafana-reporter \
 
 ##### Run as REST API Service
 
-Grafana-reporter can be launched directly as docker container from your machine as HTTP server.
+Grafana-reporter can be launched directly as Docker container from your machine as HTTP server.
 It will listen for the requests to generate reports.
 To run grafana-reporter, execute the command:
 
@@ -322,7 +322,7 @@ For example:
 curl 'http://<user>:<password>@<grafana_reporter>:<port>/api/v1/report/<uid>?template=simpleTemplate' --output /report.pdf
 ```
 
-You can learn about templates [here](#template).
+You can learn about templates [in Template Section](#template).
 
 #### Deploy with helm
 
@@ -391,7 +391,7 @@ deploying to stand k8s cluster. There are described stages in pipeline:
 
 1. `lint` — stage with jobs that run different linter to check code & documentation.
 2. `tests` — stage with jobs with units tests and other go code checks.
-3. `build` — stage with jobs that build docker image of grafana-reporter.
+3. `build` — stage with jobs that build Docker image of grafana-reporter.
 
 ## Evergreen strategy
 

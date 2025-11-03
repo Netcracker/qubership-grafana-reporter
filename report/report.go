@@ -34,6 +34,7 @@ import (
 
 	"github.com/Netcracker/grafana-reporter/dashboard"
 	"github.com/Netcracker/grafana-reporter/timerange"
+	"github.com/Netcracker/grafana-reporter/utils"
 
 	"golang.org/x/sync/errgroup"
 	yaml "gopkg.in/yaml.v3"
@@ -121,21 +122,25 @@ func RunGenerateReport(addr, credentialsFile, dashboardUID, variables string, te
 		DateFrom: timestampFrom,
 		DateTo:   timestampTo,
 	}
-	requestId := generateUniqueRequestId(dashboardUID, timerangeFrom, timerangeTo, !g.RenderCollapsed)
-	slog.Info(fmt.Sprintf("Generating report %q with parameters: dashboardId=%s, from=%v, to=%v, template=%s, vars=%s", requestId, dashboardUID, timerangeFrom, timerangeTo, texTemplate, vars.Encode()))
-	report, err := g.generateReport(dashboardUID, timerangeData, texTemplate, vars, requestId, authHeader, g.RenderCollapsed)
+	requestID := generateUniqueRequestID(dashboardUID, timerangeFrom, timerangeTo, !g.RenderCollapsed)
+	slog.Info(fmt.Sprintf("Generating report %q with parameters: dashboardId=%s, from=%v, to=%v, template=%s, vars=%s", requestID, dashboardUID, timerangeFrom, timerangeTo, texTemplate, vars.Encode()))
+	report, err := g.generateReport(dashboardUID, timerangeData, texTemplate, vars, requestID, authHeader, g.RenderCollapsed)
 	duration := time.Since(startTime).String()
 	slog.Info(fmt.Sprintf("The job took %s", duration))
 	if err != nil {
 		slog.Error(fmt.Sprintf("Error occurred when generating report. Error: %v", err))
 		return err
 	}
-	fileName := fmt.Sprintf("%s.pdf", requestId)
+	fileName := fmt.Sprintf("%s.pdf", requestID)
 	fileReport, err := os.Create(path.Join(reportsDir, fileName))
 	if err != nil {
 		return fmt.Errorf("failed to create report file. Error: %w", err)
 	}
-	defer fileReport.Close()
+	defer func() {
+		if cerr := fileReport.Close(); cerr != nil {
+			slog.Error(fmt.Sprintf("Error closing report file: %v", cerr))
+		}
+	}()
 	_, err = fileReport.Write(report)
 	if err != nil {
 		return err
@@ -144,16 +149,16 @@ func RunGenerateReport(addr, credentialsFile, dashboardUID, variables string, te
 	return nil
 }
 
-func (g *GrafanaInstance) generateReport(dashboardID string, timerangeData *timerange.TimerangeData, templateName string, vars url.Values, requestId string, authHeader string, renderCollapsed bool) ([]byte, error) {
-	//get dashboard
+func (g *GrafanaInstance) generateReport(dashboardID string, timerangeData *timerange.TimerangeData, templateName string, vars url.Values, requestID string, authHeader string, renderCollapsed bool) ([]byte, error) {
+	// get dashboard
 	structuredDashboard, err := g.getDashboard(dashboardID, authHeader, renderCollapsed)
 	if err != nil {
 		slog.Error(fmt.Sprintf("Error occurred while getting Grafana dashboard: %s", err))
 		return nil, err
 	}
-	structuredDashboard.RequestId = requestId
-	//get panels
-	ok, err := g.getPanels(structuredDashboard, timerangeData.From, timerangeData.To, vars, requestId, authHeader)
+	structuredDashboard.RequestID = requestID
+	// get panels
+	ok, err := g.getPanels(structuredDashboard, timerangeData.From, timerangeData.To, vars, requestID, authHeader)
 	if err != nil {
 		slog.Error(fmt.Sprintf("Error occurred while getting panels: %s", err))
 		return nil, err
@@ -162,14 +167,14 @@ func (g *GrafanaInstance) generateReport(dashboardID string, timerangeData *time
 		return nil, err
 	}
 
-	//generate report from images and template
+	// generate report from images and template
 	err = generateFile(string(g.Templates[templateName]), structuredDashboard, timerangeData, vars)
 	if err != nil {
 		slog.Error(fmt.Sprintf("Error occurred while generating report file: %s", err))
 		return nil, err
 	}
-	//get tex file from reportsDir
-	report, err := getReport(requestId)
+	// get tex file from reportsDir
+	report, err := getReport(requestID)
 	if err != nil {
 		slog.Error(fmt.Sprintf("Error occurred while generating PDF report. Error: %v", err))
 		return nil, err
@@ -349,14 +354,14 @@ func (g *GrafanaInstance) HandleGenerateReport(writer http.ResponseWriter, reque
 		DateFrom: timestampFrom,
 		DateTo:   timestampTo,
 	}
-	requestId := generateUniqueRequestId(dashboardID, timerangeFrom, timerangeTo, !renderCollapsed)
-	slog.Info(fmt.Sprintf("Generating report %q with parameters: dashboardId=%s, from=%v, to=%v, template=%s, vars=%s", requestId, dashboardID, timerangeFrom, timerangeTo, texTemplate, vars.Encode()))
-	//generateReport as a job and return immediate requestId
-	report, err := g.generateReport(dashboardID, timerangeData, texTemplate, vars, requestId, authHeader, renderCollapsed)
+	requestID := generateUniqueRequestID(dashboardID, timerangeFrom, timerangeTo, !renderCollapsed)
+	slog.Info(fmt.Sprintf("Generating report %q with parameters: dashboardId=%s, from=%v, to=%v, template=%s, vars=%s", requestID, dashboardID, timerangeFrom, timerangeTo, texTemplate, vars.Encode()))
+	// generateReport as a job and return immediate requestID
+	report, err := g.generateReport(dashboardID, timerangeData, texTemplate, vars, requestID, authHeader, renderCollapsed)
 	duration := time.Since(startTime).String()
 	writer.Header().Set("Duration", duration)
 	slog.Info(fmt.Sprintf("The request %s took %s", request.RequestURI, duration))
-	//writer.Write([]byte(requestId))
+	// writer.Write([]byte(requestID))
 	if err != nil {
 		slog.Error(fmt.Sprintf("Error occurred when generating report. Error: %v", err))
 		writer.WriteHeader(http.StatusInternalServerError)
@@ -367,7 +372,7 @@ func (g *GrafanaInstance) HandleGenerateReport(writer http.ResponseWriter, reque
 		return
 	}
 	writer.Header().Set("Content-Type", "application/pdf")
-	writer.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.pdf", requestId))
+	writer.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.pdf", requestID))
 	writer.WriteHeader(http.StatusOK)
 	_, err = writer.Write(report)
 	if err != nil {
@@ -385,7 +390,7 @@ func (g *GrafanaInstance) getDashboard(dashboardUID string, authHeader string, r
 		return nil, fmt.Errorf("could not create request to get Grafana dashboard :%w", err)
 	}
 	req.Header.Set("Authorization", authHeader)
-	res, err := g.Client.Do(req)
+	res, err := g.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("request to Grafana failed: %w", err)
 	}
@@ -398,13 +403,13 @@ func (g *GrafanaInstance) getDashboard(dashboardUID string, authHeader string, r
 	if err != nil {
 		return nil, err
 	}
-	//slog.Debug(fmt.Sprintf("Response body for '%s' received: %s", urlString, body))
+	// slog.Debug(fmt.Sprintf("Response body for '%s' received: %s", urlString, body))
 	err = res.Body.Close()
 	if err != nil {
 		slog.Error("Could not close body response", "error", err)
 	}
 
-	var dashboardEntity *dashboard.DashboardEntity
+	var dashboardEntity *dashboard.Entity
 	if err = json.Unmarshal(body, &dashboardEntity); err != nil {
 		return nil, err
 	}
@@ -420,7 +425,7 @@ type PanelRequestInfo struct {
 	URL       string
 }
 
-func (g *GrafanaInstance) getPanels(structuredDashboard *dashboard.StructuredDashboard, from string, to string, vars url.Values, requestId string, authHeader string) (bool, error) {
+func (g *GrafanaInstance) getPanels(structuredDashboard *dashboard.StructuredDashboard, from string, to string, vars url.Values, requestID string, authHeader string) (bool, error) {
 	panelRequestInfos, err := getPanelsURLs(g.Endpoint, structuredDashboard, from, to, vars)
 	if err != nil {
 		return false, err
@@ -444,7 +449,7 @@ func (g *GrafanaInstance) getPanels(structuredDashboard *dashboard.StructuredDas
 				return
 			}
 			for i := 0; i < attempts; i++ {
-				err := g.requestAndSaveGetPanel(panelInfo.URL, panelInfo.ImageName, requestId, authHeader)
+				err := g.requestAndSaveGetPanel(panelInfo.URL, panelInfo.ImageName, requestID, authHeader)
 				if err != nil {
 					slog.Error(fmt.Sprintf("Error occurred when requesting for panel. The request will be sent again in 5 seconds: %s", err), "panelId", panelInfo.ImageName)
 					time.Sleep(time.Second * 5)
@@ -465,7 +470,7 @@ func (g *GrafanaInstance) getPanels(structuredDashboard *dashboard.StructuredDas
 		slog.Error(err.Error())
 		return false, err
 	}
-	slog.Debug(fmt.Sprintf("All the panels successfully saved to tmp/%s/", requestId))
+	slog.Debug(fmt.Sprintf("All the panels successfully saved to tmp/%s/", requestID))
 	return true, nil
 }
 
@@ -484,11 +489,11 @@ func getPanelsURLs(grafanaEndpoint string, structuredDashboard *dashboard.Struct
 						varsLocal.Add(k, value)
 					}
 				}
-				varsLocal.Add("panelId", strconv.Itoa(panelc.Id))
+				varsLocal.Add("panelId", strconv.Itoa(panelc.ID))
 				varsLocal.Add("theme", theme)
 				varsLocal.Add("from", from)
 				varsLocal.Add("to", to)
-				//add width and height
+				// add width and height
 				var width, height int
 				height = panelc.GetPxHeight(screenResolutionWidth)
 				width = panelc.GetPxWidth(screenResolutionWidth)
@@ -496,14 +501,14 @@ func getPanelsURLs(grafanaEndpoint string, structuredDashboard *dashboard.Struct
 				varsLocal.Add("width", strconv.Itoa(width))
 				varsLocal.Add("height", strconv.Itoa(height))
 
-				urlString, err := url.JoinPath(grafanaEndpoint, "/render/d-solo/", structuredDashboard.Uid, structuredDashboard.Slug)
+				urlString, err := url.JoinPath(grafanaEndpoint, "/render/d-solo/", structuredDashboard.UID, structuredDashboard.Slug)
 				if err != nil {
 					err = fmt.Errorf("could not create URL for request Grafana panel :%w", err)
 				}
 				mutex.Lock()
 				panelRequestInfos = append(panelRequestInfos, &PanelRequestInfo{
 					URL:       fmt.Sprintf("%s?%s", urlString, varsLocal.Encode()),
-					ImageName: fmt.Sprintf("%s.png", strconv.Itoa(panelc.Id)),
+					ImageName: fmt.Sprintf("%s.png", strconv.Itoa(panelc.ID)),
 				})
 				mutex.Unlock()
 				return err
@@ -516,14 +521,14 @@ func getPanelsURLs(grafanaEndpoint string, structuredDashboard *dashboard.Struct
 	return panelRequestInfos, nil
 }
 
-func (g *GrafanaInstance) requestAndSaveGetPanel(urlString string, imageName string, requestId string, header string) error {
+func (g *GrafanaInstance) requestAndSaveGetPanel(urlString string, imageName string, requestID string, header string) error {
 	req, err := http.NewRequest(http.MethodGet, urlString, nil)
 	if err != nil {
 		return fmt.Errorf("could not create request to get Grafana panel :%w", err)
 	}
 	slog.Info(fmt.Sprintf("Requesting panel by url: %s", req.URL))
 	req.Header.Set("Authorization", header)
-	res, err := g.Client.Do(req)
+	res, err := g.Do(req)
 	if err != nil {
 		return fmt.Errorf("request to Grafana failed: %w", err)
 	}
@@ -532,16 +537,26 @@ func (g *GrafanaInstance) requestAndSaveGetPanel(urlString string, imageName str
 		return fmt.Errorf("failed to get Grafana panel: Status code is %v", res.StatusCode)
 	}
 
-	panelsDirPath := getPanelsDirPath(requestId)
+	if !utils.IsSafeFileName(requestID) {
+		return fmt.Errorf("invalid request id") // block path traversal
+	}
+	panelsDirPath := getPanelsDirPath(requestID)
 	if err = os.MkdirAll(panelsDirPath, 0777); err != nil {
 		return fmt.Errorf("could not create directory for panel on path %q. Error: %w", panelsDirPath, err)
+	}
+	if !utils.IsSafeFileName(imageName) {
+		return fmt.Errorf("invalid image name") // block path traversal
 	}
 	fullFilePath := path.Join(panelsDirPath, imageName)
 	f, err := os.Create(fullFilePath)
 	if err != nil {
 		return fmt.Errorf("could not create file %q. Error: %w", imageName, err)
 	}
-	defer f.Close()
+	defer func() {
+		if cerr := f.Close(); cerr != nil {
+			slog.Error(fmt.Sprintf("Error closing panel file: %v", cerr))
+		}
+	}()
 	_, err = f.ReadFrom(res.Body)
 	if err != nil {
 		return fmt.Errorf("could not save image of panel from response to file %q. Error: %w", imageName, err)
@@ -550,8 +565,8 @@ func (g *GrafanaInstance) requestAndSaveGetPanel(urlString string, imageName str
 	return nil
 }
 
-func getPanelsDirPath(requestId string) string {
-	return path.Join(os.TempDir(), requestId)
+func getPanelsDirPath(requestID string) string {
+	return path.Join(os.TempDir(), requestID)
 }
 
 func (g *GrafanaInstance) getAuthHeaderFromRequest(request *http.Request) (string, error) {
@@ -576,12 +591,13 @@ func (g *GrafanaInstance) getAuthHeaderFromRequest(request *http.Request) (strin
 }
 func (creds *Credentials) getAuthHeader() (string, error) {
 	var authHeader string
-	if creds.Token != "" {
+	switch {
+	case creds.Token != "":
 		authHeader = fmt.Sprintf("Bearer %s", creds.Token)
-	} else if creds.User != "" && creds.Password != "" {
+	case creds.User != "" && creds.Password != "":
 		auth := fmt.Sprintf("%s:%s", creds.User, creds.Password)
 		authHeader = fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte(auth)))
-	} else {
+	default:
 		return "", fmt.Errorf("credentials are not provided")
 	}
 	return authHeader, nil
