@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # hadolint global ignore=DL3008
-FROM golang:1.24.5-alpine3.22 AS builder
+FROM golang:1.25.3-alpine3.22 AS builder
 
 WORKDIR /workspace
 
@@ -32,6 +32,7 @@ COPY dashboard/ dashboard/
 COPY handle/ handle/
 COPY report/ report/
 COPY timerange/ timerange/
+COPY utils/ utils/
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o grafana-reporter .

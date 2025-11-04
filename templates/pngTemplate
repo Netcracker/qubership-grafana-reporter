@@ -4,7 +4,7 @@
 ]{standalone}
 \usepackage{graphicx}
 \usepackage[margin=1in]{geometry}
-\graphicspath{ {tmp/[[.StructDashboard.RequestId]]/} }
+\graphicspath{ {tmp/[[.StructDashboard.RequestID]]/} }
 
 \begin{document}
 \title{[[.StructDashboard.Title]] [[if .Vars]] \\ \large [[.Vars]] [[end]]}
@@ -17,7 +17,7 @@
 \par \textup{[[rmdlr .Title]]}\par
 \vspace{0.5cm}
 [[$li := decrm (len .Panels)]]
-[[range $i, $p := .Panels]][[if eq $i 0]]\begin{minipage}{1\textwidth}[[end]]\includegraphics[width=[[.GetRelativeWidth 1920]]\textwidth]{[[.Id]].png}
+[[range $i, $p := .Panels]][[if eq $i 0]]\begin{minipage}{1\textwidth}[[end]]\includegraphics[width=[[.GetRelativeWidth 1920]]\textwidth]{[[.ID]].png}
 [[if eq $i $li]]\end{minipage} \vspace{0.2cm}[[end]][[end]][[end]]
 \end{center}
 

@@ -28,6 +28,7 @@ import (
 
 	"github.com/Netcracker/grafana-reporter/dashboard"
 	"github.com/Netcracker/grafana-reporter/timerange"
+	"github.com/Netcracker/grafana-reporter/utils"
 )
 
 type pdfData struct {
@@ -45,7 +46,7 @@ func generatePdf(templateBody string, structuredDashboard *dashboard.StructuredD
 			return i - 1
 		},
 		"rmdlr": func(s string) string {
-			return strings.Replace(s, "$", "", -1)
+			return strings.ReplaceAll(s, "$", "")
 		},
 	}
 	templateObj, err := template.New("pdf_report").Funcs(funcMap).Delims("[[", "]]").Parse(templateBody)
@@ -56,12 +57,19 @@ func generatePdf(templateBody string, structuredDashboard *dashboard.StructuredD
 	if err = os.MkdirAll(reportsDir, 0777); err != nil {
 		return fmt.Errorf("failed to create reports directory. Error: %w", err)
 	}
-	fileTexName := fmt.Sprintf("%s.tex", structuredDashboard.RequestId)
+	if !utils.IsSafeFileName(structuredDashboard.RequestID) {
+		return fmt.Errorf("invalid request id") // block path traversal
+	}
+	fileTexName := fmt.Sprintf("%s.tex", structuredDashboard.RequestID)
 	fileTex, err := os.Create(path.Join(reportsDir, fileTexName))
 	if err != nil {
 		return fmt.Errorf("failed to create report file. Error: %w", err)
 	}
-	defer fileTex.Close()
+	defer func() {
+		if err := fileTex.Close(); err != nil {
+			slog.Error("Failed to close report file", "error", err)
+		}
+	}()
 
 	data := pdfData{
 		StructDashboard: structuredDashboard,
@@ -91,7 +99,7 @@ func generatePdf(templateBody string, structuredDashboard *dashboard.StructuredD
 }
 
 func generateFile(templateBody string, structuredDashboard *dashboard.StructuredDashboard, timerangeData *timerange.TimerangeData, vars url.Values) error {
-	defer func(requestId string) {
+	defer func(requestID string) {
 		save, found := os.LookupEnv("SAVE_TEMP_IMAGES")
 		if found {
 			toSaveImages, err := strconv.ParseBool(save)
@@ -99,8 +107,12 @@ func generateFile(templateBody string, structuredDashboard *dashboard.Structured
 				return
 			}
 		}
-		//delete all images from tmp directory
-		dir := getPanelsDirPath(requestId)
+		// delete all images from tmp directory
+		if !utils.IsSafeFileName(requestID) {
+			slog.Error("Invalid request id", "requestID", requestID)
+			return
+		}
+		dir := getPanelsDirPath(requestID)
 		entries, err := os.ReadDir(dir)
 		if err != nil {
 			slog.Error("Could not read tmp directory of images", "error", err, "path", dir)
@@ -109,12 +121,16 @@ func generateFile(templateBody string, structuredDashboard *dashboard.Structured
 		for _, entry := range entries {
 			if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".png") {
 				imageFile := path.Join(dir, entry.Name())
+				if !utils.IsSafeFileName(imageFile) { // block path traversal
+					slog.Error("Invalid image file", "error", err, "file", imageFile)
+					continue
+				}
 				if err = os.Remove(imageFile); err != nil {
 					slog.Error("Could not successfully delete image file", "error", err, "file", imageFile)
 				}
 			}
 		}
-	}(structuredDashboard.RequestId)
+	}(structuredDashboard.RequestID)
 
 	err := generatePdf(templateBody, structuredDashboard, timerangeData, vars)
 	if err != nil {
@@ -124,18 +140,21 @@ func generateFile(templateBody string, structuredDashboard *dashboard.Structured
 	return nil
 }
 
-func getReport(requestId string) ([]byte, error) {
-	report, err := os.ReadFile(path.Join(reportsDir, fmt.Sprintf("%s.pdf", requestId)))
+func getReport(requestID string) ([]byte, error) {
+	if !utils.IsSafeFileName(requestID) {
+		return nil, fmt.Errorf("invalid report id") // block path traversal
+	}
+	report, err := os.ReadFile(path.Join(reportsDir, fmt.Sprintf("%s.pdf", requestID)))
 	if err != nil {
 		return nil, err
 	}
-	if report == nil || len(report) < 1 {
+	if len(report) < 1 {
 		return nil, fmt.Errorf("report is empty")
 	}
 	return report, err
 }
 
-func generateUniqueRequestId(uid, from, to string, isCollapsed bool) string {
+func generateUniqueRequestID(uid, from, to string, isCollapsed bool) string {
 	var collapsed string
 	if isCollapsed {
 		collapsed = ""

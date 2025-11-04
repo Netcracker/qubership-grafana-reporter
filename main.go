@@ -36,16 +36,16 @@ import (
 	"github.com/Netcracker/grafana-reporter/report"
 )
 
-//	@title				Grafana Reporter REST API
-//	@version			1.0
-//	@description		This document describes REST API for Grafana Reporter.
-//	@license.name		Qubership
-//	@license.url		https://www.qubership.org/
-//	@tag.name			Generate
-//	@tag.description	Create reports of Grafana dashboard with the set of parameters
-//	@tag.name			General
-//	@tag.description	Get application information
-//	@host				GRAFANA_REPORTER:8881
+// @title				Grafana Reporter REST API
+// @version			1.0
+// @description		This document describes REST API for Grafana Reporter.
+// @license.name		Qubership
+// @license.url		https://www.qubership.org/
+// @tag.name			Generate
+// @tag.description	Create reports of Grafana dashboard with the set of parameters
+// @tag.name			General
+// @tag.description	Get application information
+// @host				GRAFANA_REPORTER:8881
 func main() {
 	logLevel := flag.String("logLevel", "info", "Log level of the application")
 	port := flag.String("port", ":8881", "Application port")
@@ -61,8 +61,8 @@ func main() {
 	ca := flag.String("ca", "/grafana/certificates/ca.pem", "Name of Certificate Authority file. It should be mounted in /grafana/certificates/ directory")
 	crt := flag.String("cert", "/grafana/certificates/cert.crt", "Name of public Certificate file. It should be mounted in /grafana/certificates/ directory")
 	pKey := flag.String("pKey", "/grafana/certificates/cert.key", "Name of private key file. It should be mounted in /grafana/certificates/ directory")
-	dashboardUid := flag.String("dashboard", "", "Dashboard UID to generate report.")
-	//parameters only for command line execution
+	dashboardUID := flag.String("dashboard", "", "Dashboard UID to generate report.")
+	// parameters only for command line execution
 	vars := flag.String("vars", "", "All variables separated by `&`")
 	user := flag.String("user", "", "Credentials for Grafana user")
 	password := flag.String("password", "", "Credentials for Grafana user")
@@ -133,7 +133,7 @@ func main() {
 			slog.Error("Failed to shutdown gracefully", "error", err)
 		}
 	} else {
-		err = report.RunGenerateReport(*grafanaAddress, *credentialsFile, *dashboardUid, *vars, templates, *defaultTemplate, *defaultFrom, *defaultTo, *renderCollapsed, tlsConfig, *user, *password, *token)
+		err = report.RunGenerateReport(*grafanaAddress, *credentialsFile, *dashboardUID, *vars, templates, *defaultTemplate, *defaultFrom, *defaultTo, *renderCollapsed, tlsConfig, *user, *password, *token)
 		if err != nil {
 			slog.Error(fmt.Sprintf("Error occurred while generating report: %s", err))
 			os.Exit(1)

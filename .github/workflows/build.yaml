@@ -26,11 +26,12 @@ jobs:
         component:
           - name: qubership-grafana-reporter
             file: Dockerfile
+            context: .
     runs-on: ubuntu-latest
     name: ${{ matrix.component.name }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
