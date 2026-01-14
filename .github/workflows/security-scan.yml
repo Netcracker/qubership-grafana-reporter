@@ -47,7 +47,7 @@ on:
         default: true
         type: boolean
   schedule:
-    - cron: "0 1 * * 0" # every Sunday at 03:00 UTC
+    - cron: "0 1 * * 0" # every Sunday at 01:00 UTC
 
 jobs:
   load-config:
