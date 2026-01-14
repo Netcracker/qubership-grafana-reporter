@@ -50,7 +50,7 @@ on:
     - cron: "0 1 * * 0" # every Sunday at 03:00 UTC
 
 jobs:
-  debug-packages:
+  load-config:
     runs-on: ubuntu-latest
     permissions:
       packages: read
@@ -92,11 +92,11 @@ jobs:
       contents: read
       security-events: write
       packages: read
-    needs: debug-packages
+    needs:  load-config
     if: ${{ inputs.image == '' || inputs.image == null }}
     strategy:
       matrix:
-        package: ${{ fromJson(needs.debug-packages.outputs.packages) }}
+        package: ${{ fromJson(needs.load-config.outputs.packages) }}
 
     name: "Run Security Scan (matrix)"
     uses: netcracker/qubership-workflow-hub/.github/workflows/re-security-scan.yml@9538833017019ab6bbc2138d3034778dfe3a5d1f #v2.0.6
@@ -109,7 +109,7 @@ jobs:
       contents: read
       security-events: write
       packages: read
-    needs: debug-packages
+    needs:  load-config
     if: ${{ inputs.image != '' && inputs.image != null }}
     name: "Run Security Scan (single image)"
     uses: netcracker/qubership-workflow-hub/.github/workflows/re-security-scan.yml@9538833017019ab6bbc2138d3034778dfe3a5d1f #v2.0.6
