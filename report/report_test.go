@@ -86,21 +86,21 @@ func TestGetBoolParameterFromRequest(t *testing.T) {
 
 func TestGetMaxConcurrentRequests(t *testing.T) {
 	// Test default
-	os.Unsetenv("MAX_CONCURRENT_RENDER_REQUESTS")
+	_ = os.Unsetenv("MAX_CONCURRENT_RENDER_REQUESTS")
 	result := getMaxConcurrentRequests()
 	if result != 4 {
 		t.Errorf("getMaxConcurrentRequests() = %d; want 4", result)
 	}
 
 	// Test with env
-	os.Setenv("MAX_CONCURRENT_RENDER_REQUESTS", "10")
+	_ = os.Setenv("MAX_CONCURRENT_RENDER_REQUESTS", "10")
 	result = getMaxConcurrentRequests()
 	if result != 10 {
 		t.Errorf("getMaxConcurrentRequests() = %d; want 10", result)
 	}
 
 	// Cleanup
-	os.Unsetenv("MAX_CONCURRENT_RENDER_REQUESTS")
+	_ = os.Unsetenv("MAX_CONCURRENT_RENDER_REQUESTS")
 }
 
 func TestCredentialsGetAuthHeader(t *testing.T) {
