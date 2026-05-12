@@ -1,0 +1,32 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", "schedule:monthly"],
+  "labels": ["dependencies"],
+  "prConcurrentLimit": 20,
+  "packageRules": [
+    {
+      "description": "Group all GitHub Actions updates",
+      "matchManagers": ["github-actions"],
+      "groupName": "github-actions",
+      "separateMajorMinor": false
+    },
+    {
+      "description": "Group Kubernetes client Go modules",
+      "matchManagers": ["gomod"],
+      "matchPackageNames": ["k8s.io/{/,}**"],
+      "groupName": "k8s.io"
+    },
+    {
+      "description": "Group OpenTelemetry Go modules",
+      "matchManagers": ["gomod"],
+      "matchPackageNames": ["go.opentelemetry.io/{/,}**"],
+      "groupName": "go.opentelemetry.io"
+    },
+    {
+      "description": "Group Dockerfile base images",
+      "matchManagers": ["dockerfile"],
+      "groupName": "docker-deps",
+      "separateMajorMinor": false
+    }
+  ]
+}
