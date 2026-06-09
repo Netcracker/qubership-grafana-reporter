@@ -1,0 +1,7 @@
+# VisualStudioCode
+.vscode/
+
+# Idea
+.idea/
+*.iml
+

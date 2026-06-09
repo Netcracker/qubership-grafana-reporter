@@ -1,0 +1,7 @@
+version: "2"
+run:
+  timeout: 10m
+linters:
+  settings:
+    cyclop:
+      max-complexity: 18 # For HandleGenerateReport, parseBoundaryTime, parseRelativeTime functions
