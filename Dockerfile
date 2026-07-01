@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # hadolint global ignore=DL3008
-FROM golang:1.26.2-alpine3.22 AS builder
+FROM golang:1.26.4-alpine3.22@sha256:727cfc3c40be55cd1bc9a4a059406b28a059857e3be752aa9d09531e12c20c56 AS builder
 
 WORKDIR /workspace
 
@@ -38,7 +38,7 @@ COPY utils/ utils/
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o grafana-reporter .
 
 # Final image
-FROM ubuntu:24.04
+FROM ubuntu:26.04@sha256:53958ec7b67c2c9355df922dd08dbf0360611f8c3cdb656875e81873db9ffdba
 
 ENV USER_UID=2001 \
     USER_NAME=appuser \
