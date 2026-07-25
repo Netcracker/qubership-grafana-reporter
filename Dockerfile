@@ -38,7 +38,7 @@ COPY utils/ utils/
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o grafana-reporter .
 
 # Final image
-FROM ubuntu:26.04@sha256:53958ec7b67c2c9355df922dd08dbf0360611f8c3cdb656875e81873db9ffdba
+FROM ubuntu:26.04@sha256:3131b4cc82a783df6c9df078f86e01819a13594b865c2cad47bd1bca2b7063bb
 
 ENV USER_UID=2001 \
     USER_NAME=appuser \
