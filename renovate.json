@@ -13,7 +13,13 @@
       "description": "Third-party Docker images",
       "matchManagers": ["dockerfile"],
       "groupName": "docker-deps",
-      "matchPackageNames": ["!ghcr.io/netcracker/**", "!golang"],
+      "matchPackageNames": [
+        "!ghcr.io/netcracker/**",
+        "!golang",
+        "!docker.io/library/golang",
+        "!index.docker.io/library/golang",
+        "!registry-1.docker.io/library/golang"
+      ],
       "separateMajorMinor": false
     }
   ]
