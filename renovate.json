@@ -4,8 +4,7 @@
     "github>Netcracker/renovate-config:base",
     "github>Netcracker/renovate-config:github-actions",
     "github>Netcracker/renovate-config:go",
-    "github>Netcracker/renovate-config:netcracker-dependencies",
-    "schedule:monthly"
+    "github>Netcracker/renovate-config:netcracker-dependencies"
   ],
   "prConcurrentLimit": 20,
   "packageRules": [
