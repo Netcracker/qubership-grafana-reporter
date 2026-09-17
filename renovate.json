@@ -2,6 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "github>Netcracker/renovate-config:base",
+    "github>Netcracker/renovate-config:automerge",
     "github>Netcracker/renovate-config:github-actions",
     "github>Netcracker/renovate-config:go",
     "github>Netcracker/renovate-config:netcracker-dependencies"

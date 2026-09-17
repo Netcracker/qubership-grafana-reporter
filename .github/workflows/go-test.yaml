@@ -43,3 +43,18 @@ jobs:
       contents: read
       pull-requests: write
       packages: write
+
+  go-ci-gate:
+    name: Go CI Gate
+    if: ${{ always() && github.event_name == 'pull_request' }}
+    needs:
+      - prepare
+      - test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Require successful Go validation
+        if: needs.prepare.result != 'success' || needs.test.result != 'success'
+        run: exit 1
