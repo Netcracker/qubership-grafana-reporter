@@ -63,3 +63,16 @@ jobs:
           provenance: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  docker-ci-gate:
+    name: Docker CI Gate
+    if: ${{ always() && github.event_name == 'pull_request' }}
+    needs: multiplatform_build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Require successful Docker build
+        if: needs.multiplatform_build.result != 'success'
+        run: exit 1
