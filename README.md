@@ -126,16 +126,14 @@ If you are developer and need to make changes to this repository make sure that 
 
 ### Build
 
-Each time when you push your changes to repository CI pipeline is started.
-Usually one of the latest step is application build and Docker image build.
-So you do not need to run build job manually. You can find the image in `build-service` link in job.
+Open a pull request to build and validate your changes. PR builds do not publish Docker images.
+A push to a working branch without an open PR does not start an image build.
 
-If you need to build grafana-reporter manually, you can:
-
-1. Run CI pipeline.
-2. Run only build job. Parameters:
-   * `REPOSITORY_NAME` — `qubership-grafana-reporter`
-   * `LOCATION` — your branch
+The [Build Artifacts workflow](.github/workflows/build.yaml) publishes images to
+`ghcr.io/netcracker/qubership-grafana-reporter` on pushes to `main` and when a GitHub release is created,
+subject to the workflow's actor restrictions.
+Working branches do not publish dev images. To obtain an image of working-branch changes,
+build the repository's [Dockerfile](Dockerfile) locally from the repository root.
 
 ### Definition of done
 
@@ -357,7 +355,7 @@ helm uninstall <any-release-name> --namespace <namespace>
 ### How to debug
 
 You can debug grafana-reporter locally with default or custom parameters in your IDE.
-The only thing that you need to cnfigure cli flags and have the instance of
+The only thing that you need to configure cli flags and have the instance of
 Grafana with grafana-image-renderer installed (cloud or VM).
 
 ### How to troubleshoot
