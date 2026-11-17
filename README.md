@@ -355,7 +355,7 @@ helm uninstall <any-release-name> --namespace <namespace>
 ### How to debug
 
 You can debug grafana-reporter locally with default or custom parameters in your IDE.
-The only thing that you need to cnfigure cli flags and have the instance of
+The only thing that you need to configure cli flags and have the instance of
 Grafana with grafana-image-renderer installed (cloud or VM).
 
 ### How to troubleshoot
